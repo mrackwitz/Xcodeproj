@@ -8,6 +8,7 @@
   [Alessandro Orrù](https://github.com/alessandroorru)
   [Xcodeproj#155](https://github.com/CocoaPods/Xcodeproj/pull/155)
 
+
 ## 0.17.0
 
 ###### Enhancements
@@ -16,6 +17,7 @@
   [Kyle Fuller][kylef]
   [Fabio Pelosin][irrationalfab]
   [Xcodeproj#105](https://github.com/CocoaPods/Xcodeproj/pull/150)
+
 
 ## 0.16.1
 
@@ -28,6 +30,7 @@
 
 * [Xcodeproj::Project#reference_for_path] Support for string parameter.  
   [jlj](https://github.com/jlj)
+
 
 ## 0.16.0
 
