@@ -19,7 +19,8 @@ Gem::Specification.new do |s|
   s.files         = %w{ README.md LICENSE } +
                     Dir["lib/**/*.rb",
                         "ext/xcodeproj/{Rakefile,extconf.rb,xcodeproj_ext.c}",
-                        "ext/xcodeproj/prebuilt/**/*.bundle"]
+                        "ext/xcodeproj/prebuilt/**/*.bundle",
+                        "data/**/*.xcconfig"]
 
   s.extensions    = "ext/xcodeproj/Rakefile"
   s.executables   = %w{ xcodeproj }
