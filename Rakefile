@@ -91,11 +91,13 @@ begin
   #-----------------------------------------------------------------------------#
 
   namespace :common_build_settings do
-    PROJECT_PATH = 'Project/Project.xcodeproj'
+    PROJECT_PATH = 'project/Project.xcodeproj'
 
     task :prepare do
       verbose false
-      cd 'spec/fixtures/CommonBuildSettings'
+      require 'xcodeproj'
+      dir_name = Xcodeproj::Application.current.config_identifier
+      cd "data/#{dir_name}"
     end
 
     desc "Create a new empty project"
@@ -105,13 +107,13 @@ begin
       title "Setup Boilerplate"
 
       confirm "Delete existing fixture project and all data"
-      rm_rf 'Project/*'
+      rm_rf 'project/*'
 
       subtitle "Create a new fixture project"
       Xcodeproj::Project.new(PROJECT_PATH).save
 
       subtitle "Open the project …"
-      sh 'open "Project/Project.xcodeproj"'
+      sh "open '#{PROJECT_PATH}'"
     end
 
     desc "Interactive walkthrough for creating fixture targets"
@@ -178,7 +180,8 @@ begin
     desc "Dump the build settings of the fixture project to xcconfig files"
     task :dump => [:prepare] do
       verbose false
-      sh "../../../bin/xcodeproj config-dump Project/Project.xcodeproj configs"
+      mkdir_p 'configs'
+      sh '../../bin/xcodeproj config-dump project/Project.xcodeproj configs'
     end
 
     desc "Recreate the xcconfig files for the fixture project targets from scratch"
