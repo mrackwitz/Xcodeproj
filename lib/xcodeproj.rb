@@ -11,6 +11,7 @@ module Xcodeproj
 
   require 'xcodeproj/user_interface'
 
+  autoload :Application,      'xcodeproj/application'
   autoload :Command,          'xcodeproj/command'
   autoload :Config,           'xcodeproj/config'
   autoload :Constants,        'xcodeproj/constants'
