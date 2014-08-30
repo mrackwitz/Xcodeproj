@@ -127,28 +127,29 @@ begin
       confirm "Make sure you have nothing unsaved there"
 
       targets = {
-        "Objc_iOS_Native"         => { platform: :ios, type: :application,     language: :objc,  how: "iOS > Master-Detail Application > Language: Objective-C" },
-        "Swift_iOS_Native"        => { platform: :ios, type: :application,     language: :swift, how: "iOS > Master-Detail Application > Language: Swift" },
-        "Objc_iOS_Framework"      => { platform: :ios, type: :framework,       language: :objc,  how: "iOS > Cocoa Touch Framework > Language: Objective-C" },
-        "Swift_iOS_Framework"     => { platform: :ios, type: :framework,       language: :swift, how: "iOS > Cocoa Touch Framework > Language: Swift" },
-        "Objc_iOS_StaticLibrary"  => { platform: :ios, type: :static_library,  language: :objc,  how: "iOS > Cocoa Touch Static Library" },
-        "Objc_OSX_Native"         => { platform: :osx, type: :application,     language: :objc,  how: "OSX > Cocoa Application > Language: Objective-C" },
-        "Swift_OSX_Native"        => { platform: :osx, type: :application,     language: :swift, how: "OSX > Cocoa Application > Language: Swift" },
-        "Objc_OSX_Framework"      => { platform: :osx, type: :framework,       language: :objc,  how: "OSX > Cocoa Framework > Language: Objective-C" },
-        "Swift_OSX_Framework"     => { platform: :osx, type: :framework,       language: :swift, how: "OSX > Cocoa Framework > Language: Swift" },
-        "Objc_OSX_StaticLibrary"  => { platform: :osx, type: :static_library,  language: :objc,  how: "OSX > Library > Type: Static" },
-        "Objc_OSX_DynamicLibrary" => { platform: :osx, type: :dynamic_library, language: :objc,  how: "OSX > Library > Type: Dynamic" },
-        "OSX_Bundle"              => { platform: :osx, type: :bundle,                            how: "OSX > Bundle" },
+        "Objc_iOS_Native"         => "iOS > Master-Detail Application > Language: Objective-C",
+        "Swift_iOS_Native"        => "iOS > Master-Detail Application > Language: Swift",
+        "Objc_iOS_Framework"      => "iOS > Cocoa Touch Framework > Language: Objective-C",
+        "Swift_iOS_Framework"     => "iOS > Cocoa Touch Framework > Language: Swift",
+        "Objc_iOS_StaticLibrary"  => "iOS > Cocoa Touch Static Library",
+        "Objc_OSX_Native"         => "OSX > Cocoa Application > Language: Objective-C",
+        "Swift_OSX_Native"        => "OSX > Cocoa Application > Language: Swift",
+        "Objc_OSX_Framework"      => "OSX > Cocoa Framework > Language: Objective-C",
+        "Swift_OSX_Framework"     => "OSX > Cocoa Framework > Language: Swift",
+        "Objc_OSX_StaticLibrary"  => "OSX > Library > Type: Static",
+        "Objc_OSX_DynamicLibrary" => "OSX > Library > Type: Dynamic",
+        "OSX_Bundle"              => "OSX > Bundle",
       }
 
-      targets.each do |name, attributes|
+      targets.each do |name, explanation|
+        target_config = Xcodeproj::Constants::TARGET_CONFIGURATIONS[name]
         if args[:pre6]
-          next if attributes[:language] == :swift
-          next if attributes[:platform] == :ios && attributes[:type] == :framework
+          next if target_config.language == :swift
+          next if target_config.platform == :ios && target_config.product_type == :framework
         end
         begin
           sh "printf '#{name}' | pbcopy"
-          confirm "Create a target named '#{name}' by: #{attributes[:how]}", false
+          confirm "Create a target named '#{name}' by: #{explanation}", false
 
           project = Xcodeproj::Project.open(PROJECT_PATH)
           raise "Project couldn't be opened." if project.nil?
@@ -156,8 +157,8 @@ begin
           target = project.targets.find { |t| t.name == name }
           raise "Target wasn't found." if target.nil?
 
-          raise "Platform doesn't match." unless target.platform_name == attributes[:platform]
-          raise "Type doesn't match."     unless target.symbol_type   == attributes[:type]
+          raise "Platform doesn't match." unless target.platform_name == target_config.platform
+          raise "Type doesn't match."     unless target.symbol_type   == target_config.product_type
 
           debug_config= target.build_configurations.find { |c| c.name = 'Debug' }
           raise "Debug configuration is missing" if debug_config.nil?
@@ -166,7 +167,7 @@ begin
           raise "Release configuration is missing" if release_config.nil?
 
           is_swift_present  = debug_config.build_settings['SWIFT_OPTIMIZATION_LEVEL'] != nil
-          is_swift_expected = attributes[:language] == :swift
+          is_swift_expected = target_config.language == :swift
           raise "Language doesn't match." unless is_swift_present == is_swift_expected
 
           puts green("Target matches.")
