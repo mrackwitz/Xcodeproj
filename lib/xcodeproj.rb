@@ -11,16 +11,17 @@ module Xcodeproj
 
   require 'xcodeproj/user_interface'
 
-  autoload :Application,      'xcodeproj/application'
-  autoload :Command,          'xcodeproj/command'
-  autoload :Config,           'xcodeproj/config'
-  autoload :Constants,        'xcodeproj/constants'
-  autoload :Differ,           'xcodeproj/differ'
-  autoload :Helper,           'xcodeproj/helper'
-  autoload :Project,          'xcodeproj/project'
-  autoload :Workspace,        'xcodeproj/workspace'
-  autoload :XCScheme,         'xcodeproj/scheme'
-  autoload :XcodebuildHelper, 'xcodeproj/xcodebuild_helper'
+  autoload :Application,         'xcodeproj/application'
+  autoload :Command,             'xcodeproj/command'
+  autoload :Config,              'xcodeproj/config'
+  autoload :Constants,           'xcodeproj/constants'
+  autoload :Differ,              'xcodeproj/differ'
+  autoload :Helper,              'xcodeproj/helper'
+  autoload :Project,             'xcodeproj/project'
+  autoload :TargetConfiguration, 'xcodeproj/target_configuration'
+  autoload :Workspace,           'xcodeproj/workspace'
+  autoload :XCScheme,            'xcodeproj/scheme'
+  autoload :XcodebuildHelper,    'xcodeproj/xcodebuild_helper'
 end
 
 # TODO It appears that loading the C ext from xcodeproj/project while it's
