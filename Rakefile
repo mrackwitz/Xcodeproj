@@ -117,7 +117,7 @@ begin
     end
 
     desc "Interactive walkthrough for creating fixture targets"
-    task :targets => [:prepare] do
+    task :targets, [:pre6] => [:prepare] do |t, args|
       verbose false
       require 'xcodeproj'
 
@@ -142,6 +142,10 @@ begin
       }
 
       targets.each do |name, attributes|
+        if args[:pre6]
+          next if attributes[:language] == :swift
+          next if attributes[:platform] == :ios && attributes[:type] == :framework
+        end
         begin
           sh "printf '#{name}' | pbcopy"
           confirm "Create a target named '#{name}' by: #{attributes[:how]}", false
