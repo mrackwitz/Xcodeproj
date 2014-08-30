@@ -24,6 +24,7 @@ module Xcodeproj
     #         see #path
     #
     def initialize(path)
+      raise "Directory '#{path}' doesn't exist!" unless File.directory?(path)
       @path = Pathname(path)
     end
 
@@ -96,7 +97,10 @@ module Xcodeproj
     # @return [String]
     #
     def plist_read(file, key)
-      `/usr/libexec/PlistBuddy #{file} -c "Print #{key}"`.chomp
+      raise ArgumentError, "File #{file} doesn't exist!" unless File.exist? file
+      value_or_error = `/usr/libexec/PlistBuddy #{file} -c "Print #{key}"`.chomp
+      raise StandardError, value_or_error unless $?.success?
+      value_or_error
     end
 
   end

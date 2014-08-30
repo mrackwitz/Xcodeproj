@@ -22,6 +22,13 @@ describe Xcodeproj::Application do
     it 'should set the first argument as attribute path' do
       @app.path.should.eql?(Pathname(@app_path))
     end
+
+    it 'should fail if the given path doesn\'t exist' do
+      @fixture_path = fixture_path('FakeXcode-beta.app')
+      -> {
+        subject.new(@fixture_path)
+      }.should.raise?(StandardError, "File doesn't exist #{@fixture_path}!")
+    end
   end
 
   describe '#info_plist_path' do
