@@ -83,6 +83,65 @@ module Xcodeproj
       Pathname("#{config_dir_name}/#{config_dir_name}_base.xcconfig")
     end
 
+    # Deserialize the config file
+    #
+    # @param  [String|Xcodeproj::Application] version
+    #         see #config_dir_for_version
+    #
+    # @return [Hash]
+    #
+    def settings(version=nil)
+      dir = config_dir_for_version(version)
+      config = Config.new(dir + config_file_path)
+      config.merge_with_includes!
+      settings = config.to_hash
+      if deployment_target
+        settings[deployment_target_setting_key] = deployment_target
+      end
+      settings
+    end
+
+    # Return the build setting to configure the deployment target
+    #
+    # @return [String]
+    #
+    def deployment_target_setting_key
+      case platform
+        when :ios then 'IPHONEOS_DEPLOYMENT_TARGET'
+        when :osx then 'MACOSX_DEPLOYMENT_TARGET'
+      end
+    end
+
+    # Get config directory for Xcode version
+    #
+    # @raise  [StandardError]
+    #         if the given version is ambiguous
+    #
+    # @raise  [StandardError]
+    #         if the given version is unknown
+    #
+    # @param  [String|Xcodeproj::Application] version
+    #         either the Xcode short version or the product build version,
+    #         by default the current selected Xcode version will be used.
+    #         See {Xcodeproj::Application.current}
+    #
+    # @return [Pathname]
+    #
+    def config_dir_for_version(version)
+      version ||= Xcodeproj::Application.current
+      if version.is_a? Xcodeproj::Application
+        app = version
+        version = app.product_build_version
+        dir = "data/#{app.config_identifier}"
+      else
+        dirs = Dir["data/*#{version}*"]
+        raise "Ambiguous version specified. Please use product build version to select one of:\n#{dirs.join(', ')}" if dirs.count > 1
+        dir = dirs.first
+      end
+      raise "No config found for version '#{version}'." unless File.directory?(dir)
+      Pathname("#{dir}/configs")
+    end
+
   end
 
 end

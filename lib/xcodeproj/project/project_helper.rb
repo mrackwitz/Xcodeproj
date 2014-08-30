@@ -180,31 +180,23 @@ module Xcodeproj
       # @param  [Symbol] language
       #         the primary language of the target, can be `:objc` or `:swift`.
       #
+      # @param  [String|Xcodeproj::Application] version
+      #         see {TargetConfiguration#config_dir_for_version}
+      #
       # @return [Hash] The common build settings
       #
-      def self.common_build_settings(type, platform, deployment_target = nil, target_product_type = nil, language = :objc)
-        target_product_type = (Constants::PRODUCT_TYPE_UTI.find { |_,v| v == target_product_type } || [target_product_type])[0]
-        common_settings = Constants::COMMON_BUILD_SETTINGS
+      def self.common_build_settings(type, platform, deployment_target = nil, target_product_type = nil, language = :objc, version = nil)
+        product_type = (Constants::PRODUCT_TYPE_UTI.find { |_,v| v == target_product_type } || [target_product_type])[0]
 
-        # Use intersecting settings for all key sets as base
-        settings = deep_dup(common_settings[:all])
+        target_config = TargetConfiguration.new({
+          type:              type,
+          platform:          platform,
+          deployment_target: deployment_target,
+          product_type:      product_type,
+          language:          language,
+        })
 
-        # Match further common settings by key sets
-        keys = [type, platform, target_product_type, language].compact
-        key_combinations = (1..keys.length).map { |n| keys.combination(n).to_a }.reduce([], :+)
-        key_combinations.each do |key_combination|
-          settings.merge!(deep_dup(common_settings[key_combination] || {}))
-        end
-
-        if deployment_target
-          if platform == :ios
-            settings['IPHONEOS_DEPLOYMENT_TARGET'] = deployment_target
-          elsif platform == :osx
-            settings['MACOSX_DEPLOYMENT_TARGET'] = deployment_target
-          end
-        end
-
-        settings
+        target_config.settings(version)
       end
 
       # Creates a deep copy of the given object
