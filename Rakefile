@@ -91,7 +91,8 @@ begin
   #-----------------------------------------------------------------------------#
 
   namespace :common_build_settings do
-    PROJECT_PATH = 'project/Project.xcodeproj'
+    PROJECT_DIR = 'project'
+    PROJECT_PATH = "#{PROJECT_DIR}/Project.xcodeproj"
 
     task :prepare, [:dir_name] do |_, args|
       verbose false
@@ -106,8 +107,11 @@ begin
       require 'xcodeproj'
       title "Setup Boilerplate"
 
-      confirm "Delete existing fixture project and all data"
-      rm_rf 'project/*'
+      if Dir.exist?(PROJECT_PATH)
+        confirm "Delete existing fixture project and all data"
+        rm_rf PROJECT_DIR
+      end
+      mkdir_p PROJECT_DIR
 
       subtitle "Create a new fixture project"
       Xcodeproj::Project.new(PROJECT_PATH).save
