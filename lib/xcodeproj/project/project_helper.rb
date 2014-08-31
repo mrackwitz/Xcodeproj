@@ -20,7 +20,7 @@ module Xcodeproj
       # @param  [Project] project
       #         the project to which the target should be added.
       #
-      # @param  [Symbol] type
+      # @param  [Symbol] product_type
       #         the type of target. Can be `:application`, `:dynamic_library` or
       #         `:static_library`.
       #
@@ -39,14 +39,14 @@ module Xcodeproj
       #
       # @return [PBXNativeTarget] the target.
       #
-      def self.new_target(project, type, name, platform, deployment_target, product_group)
+      def self.new_target(project, product_type, name, platform, deployment_target, product_group)
 
         # Target
         target = project.new(PBXNativeTarget)
         project.targets << target
         target.name = name
         target.product_name = name
-        target.product_type = Constants::PRODUCT_TYPE_UTI[type]
+        target.product_type = Constants::PRODUCT_TYPE_UTI[product_type]
         target.build_configuration_list = configuration_list(project, platform, deployment_target)
 
         # Product
