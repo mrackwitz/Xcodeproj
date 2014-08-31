@@ -21,8 +21,8 @@ module Xcodeproj
       #         the project to which the target should be added.
       #
       # @param  [Symbol] product_type
-      #         the type of target. Can be `:application`, `:dynamic_library` or
-      #         `:static_library`.
+      #         the type of target. Can be `:application`, `:dynamic_library`,
+      #         `framework` or `:static_library`.
       #
       # @param  [String] name
       #         the name of the target product.
