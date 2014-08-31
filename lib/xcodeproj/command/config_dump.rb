@@ -38,13 +38,14 @@ directories named by the target in givene output directory.
 
         # Dump base configuration to file
         base_settings = extract_common_settings!(configurable.build_configurations)
-        base_file_path = path + "#{name}_base.xcconfig"
+        base_file_name = "#{name}_base.xcconfig"
+        base_file_path = path + base_file_name
         dump_config_to_file(base_settings, base_file_path)
 
         # Dump each configuration to file
         configurable.build_configurations.each do |config|
           settings = config.build_settings
-          dump_config_to_file(settings, path + "#{name}_#{config.name.downcase}.xcconfig", [base_file_path])
+          dump_config_to_file(settings, path + "#{name}_#{config.name.downcase}.xcconfig", [base_file_name])
         end
       end
 
