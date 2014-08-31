@@ -1,3 +1,3 @@
-#include "Objc_OSX_StaticLibraryTests/Objc_OSX_StaticLibraryTests_base.xcconfig"
+#include "Objc_OSX_StaticLibraryTests_base.xcconfig"
 COPY_PHASE_STRIP = YES
 DEBUG_INFORMATION_FORMAT = dwarf-with-dsym
