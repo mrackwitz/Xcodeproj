@@ -93,10 +93,10 @@ begin
   namespace :common_build_settings do
     PROJECT_PATH = 'project/Project.xcodeproj'
 
-    task :prepare do
+    task :prepare, [:dir_name] do |_, args|
       verbose false
       require 'xcodeproj'
-      dir_name = Xcodeproj::Application.current.config_identifier
+      dir_name = args[:dir_name] || Xcodeproj::Application.current.config_identifier
       cd "data/#{dir_name}"
     end
 
@@ -183,10 +183,19 @@ begin
     end
 
     desc "Dump the build settings of the fixture project to xcconfig files"
-    task :dump => [:prepare] do
+    task :dump, [:dir_name] => [:prepare] do
       verbose false
       mkdir_p 'configs'
       sh '../../bin/xcodeproj config-dump project/Project.xcodeproj configs'
+    end
+
+    desc "(Re-)Dump all fixture projects to xcconfig files"
+    task :dump_all do
+      Dir['data/*'].each do |dir|
+        dir_name = File.basename(dir)
+        # Rake::Task[].invoke won't work here, because the chdir side-effect
+        sh "rake common_build_settings:dump[#{dir_name}]"
+      end
     end
 
     desc "Recreate the xcconfig files for the fixture project targets from scratch"
