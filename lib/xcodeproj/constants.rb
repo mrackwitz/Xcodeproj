@@ -108,6 +108,23 @@ module Xcodeproj
       :bundle          => 'bundle',
     }.freeze
 
+    # @return [Hash] All valid {TargetConfigurations}.
+    #
+    TARGET_CONFIGURATIONS = {
+      "Objc_iOS_Native"         => TargetConfiguration.new({ platform: :ios, product_type: :application,     language: :objc  }),
+      "Swift_iOS_Native"        => TargetConfiguration.new({ platform: :ios, product_type: :application,     language: :swift }),
+      "Objc_iOS_Framework"      => TargetConfiguration.new({ platform: :ios, product_type: :framework,       language: :objc  }),
+      "Swift_iOS_Framework"     => TargetConfiguration.new({ platform: :ios, product_type: :framework,       language: :swift }),
+      "Objc_iOS_StaticLibrary"  => TargetConfiguration.new({ platform: :ios, product_type: :static_library,  language: :objc  }),
+      "Objc_OSX_Native"         => TargetConfiguration.new({ platform: :osx, product_type: :application,     language: :objc  }),
+      "Swift_OSX_Native"        => TargetConfiguration.new({ platform: :osx, product_type: :application,     language: :swift }),
+      "Objc_OSX_Framework"      => TargetConfiguration.new({ platform: :osx, product_type: :framework,       language: :objc  }),
+      "Swift_OSX_Framework"     => TargetConfiguration.new({ platform: :osx, product_type: :framework,       language: :swift }),
+      "Objc_OSX_StaticLibrary"  => TargetConfiguration.new({ platform: :osx, product_type: :static_library,  language: :objc  }),
+      "Objc_OSX_DynamicLibrary" => TargetConfiguration.new({ platform: :osx, product_type: :dynamic_library, language: :objc  }),
+      "OSX_Bundle"              => TargetConfiguration.new({ platform: :osx, product_type: :bundle,                           }),
+    }.freeze
+
     # @return [Hash] The common build settings grouped by platform, and build
     #         configuration name.
     #
