@@ -1,4 +1,5 @@
 require 'active_support/inflector'
+require 'xcodeproj/helper'
 
 module Xcodeproj
 
@@ -6,6 +7,8 @@ module Xcodeproj
   # configuration, which has preset build settings
   #
   class TargetConfiguration
+
+    extend Xcodeproj::Helper::EnumAccessor
 
     # @return [Symbol]
     #         the platform, can be `:ios` or `:osx`.
@@ -78,28 +81,6 @@ module Xcodeproj
     #
     def base_config_file_path
       Pathname("#{config_dir_name}/#{config_dir_name}_base.xcconfig")
-    end
-
-    # Define a new attribute with enumerated valid values and synthesises the
-    # corresponding methods.
-    #
-    # @param  [String] name
-    #         the name of the attribute
-    #
-    # @return [void]
-    #
-    def self.enum_accessor(name, valid_values)
-      define_method(name) do
-        @simple_attributes_hash ||= {}
-        @simple_attributes_hash[name]
-      end
-
-      define_method("#{name}=") do |value|
-        @simple_attributes_hash ||= {}
-        acceptable = valid_values.include?(value)
-        raise "[Xcodeproj] Type checking error: got `#{value}` for attribute: #{name}" unless acceptable
-        @simple_attributes_hash[name] = value
-      end
     end
 
   end
