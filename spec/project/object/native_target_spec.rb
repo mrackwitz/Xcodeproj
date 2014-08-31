@@ -117,16 +117,24 @@ module ProjectSpecs
       it "returns the deployment target specified in its build configuration" do
         @project.build_configuration_list.set_setting('IPHONEOS_DEPLOYMENT_TARGET', nil)
         @project.build_configuration_list.set_setting('MACOSX_DEPLOYMENT_TARGET', nil)
-        @project.new_target(:static_library, 'Pods', :ios).deployment_target.should == '4.3'
-        @project.new_target(:static_library, 'Pods', :osx).deployment_target.should == '10.7'
+        @project.new_target(:static_library, 'Pods', :ios).deployment_target.should == '7.1'
+        @project.new_target(:static_library, 'Pods', :osx).deployment_target.should == '10.9'
       end
 
       it "returns the deployment target" do
         @project.build_configuration_list.set_setting('IPHONEOS_DEPLOYMENT_TARGET', '4.3')
-        @project.build_configuration_list.set_setting('MACOSX_DEPLOYMENT_TARGET', '10.7')
-        mac_target = @project.new_target(:static_library, 'Pods', :ios)
-        mac_target.build_configurations.first.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = nil
-        mac_target.deployment_target.should == '4.3'
+        ios_target = @project.new_target(:static_library, 'Pods', :ios)
+        ios_target.build_configurations.first.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = nil
+        ios_target.deployment_target.should == '4.3'
+      end
+
+      it 'raises an error on inconsistency' do
+        mac_target = @project.new_target(:static_library, 'Pods', :osx)
+        mac_target.build_configurations[0].build_settings['MACOSX_DEPLOYMENT_TARGET'] = '10.8'
+        mac_target.build_configurations[1].build_settings['MACOSX_DEPLOYMENT_TARGET'] = '10.9'
+        -> {
+          mac_target.deployment_target
+        }.should.raise?(StandardError, '[Xcodeproj] Consistency issue: build setting `MACOSX_DEPLOYMENT_TARGET` has multiple values: `{"Release"=>"10.9", "Debug"=>"10.10"}`')
       end
 
       it "returns the build configuration" do
