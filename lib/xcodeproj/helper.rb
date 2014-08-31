@@ -21,6 +21,7 @@ module Xcodeproj
 
         define_method("#{name}=") do |value|
           @simple_attributes_hash ||= {}
+          raise "[Xcodeproj] Type checking error: got nil for attribute: #{name}" if value.nil?
           acceptable = valid_values.include?(value)
           raise "[Xcodeproj] Type checking error: got `#{value}` for attribute: #{name}" unless acceptable
           @simple_attributes_hash[name] = value
