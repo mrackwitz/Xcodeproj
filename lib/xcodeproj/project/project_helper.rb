@@ -47,7 +47,7 @@ module Xcodeproj
         target.name = name
         target.product_name = name
         target.product_type = Constants::PRODUCT_TYPE_UTI[product_type]
-        target.build_configuration_list = configuration_list(project, platform, deployment_target)
+        target.build_configuration_list = configuration_list(project, platform, deployment_target, product_type)
 
         # Product
         product = product_group.new_product_ref_for_target(name, product_type)
@@ -140,20 +140,25 @@ module Xcodeproj
       # @param  [String] deployment_target
       #         the deployment target for the platform.
       #
+      # @param  [Symbol] product_type
+      #         the product type of the target, can be any of
+      #         `Constants::PRODUCT_TYPE_UTI.values` or
+      #         `Constants::PRODUCT_TYPE_UTI.keys`.
+      #
       # @return [XCConfigurationList] the generated configuration list.
       #
-      def self.configuration_list(project, platform, deployment_target = nil)
+      def self.configuration_list(project, platform, deployment_target = nil, product_type = nil)
         cl = project.new(XCConfigurationList)
         cl.default_configuration_is_visible = '0'
         cl.default_configuration_name = 'Release'
 
         release_conf = project.new(XCBuildConfiguration)
         release_conf.name = 'Release'
-        release_conf.build_settings = common_build_settings(:release, platform, deployment_target)
+        release_conf.build_settings = common_build_settings(:release, platform, deployment_target, product_type)
 
         debug_conf = project.new(XCBuildConfiguration)
         debug_conf.name = 'Debug'
-        debug_conf.build_settings = common_build_settings(:debug, platform, deployment_target)
+        debug_conf.build_settings = common_build_settings(:debug, platform, deployment_target, product_type)
 
         cl.build_configurations << release_conf
         cl.build_configurations << debug_conf
@@ -174,8 +179,9 @@ module Xcodeproj
       #         the deployment target for the platform.
       #
       # @param  [Symbol] target_product_type
-      #         the product type of the target, can be any of `Constants::PRODUCT_TYPE_UTI.values`
-      #         or `Constants::PRODUCT_TYPE_UTI.keys`.
+      #         the product type of the target, can be any of
+      #         `Constants::PRODUCT_TYPE_UTI.values` or
+      #         `Constants::PRODUCT_TYPE_UTI.keys`.
       #
       # @param  [Symbol] language
       #         the primary language of the target, can be `:objc` or `:swift`.
