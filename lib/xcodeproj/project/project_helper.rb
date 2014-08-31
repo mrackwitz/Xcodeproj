@@ -98,8 +98,6 @@ module Xcodeproj
 
         # Configuration List
         cl = project.new(XCConfigurationList)
-        cl.default_configuration_is_visible = '0'
-        cl.default_configuration_name = 'Release'
         release_conf = project.new(XCBuildConfiguration)
         release_conf.name = 'Release'
         release_conf.build_settings = build_settings

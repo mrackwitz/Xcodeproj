@@ -157,8 +157,6 @@ module Xcodeproj
 
       config_list = new(XCConfigurationList)
       root_object.build_configuration_list = config_list
-      config_list.default_configuration_name = 'Release'
-      config_list.default_configuration_is_visible = '0'
       add_build_configuration('Debug', :debug)
       add_build_configuration('Release', :release)
 
