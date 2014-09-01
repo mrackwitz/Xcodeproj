@@ -274,6 +274,12 @@ module Xcodeproj
       'INFOPLIST_FILE'    => -> (t) { "#{t}/#{t}-Info.plist" },
     }.freeze
 
+    # @return [Array<String>]
+    #         The keys of build settings which were dumped, but should not been
+    #         used as presets for newly created target configurations.
+    #
+    EXCLUDE_BUILD_SETTINGS_KEYS = PROJECT_PATH_DEPENDENT_BUILD_SETTINGS.keys.freeze
+
     # @return [Hash] The corresponding numeric value of each copy build phase
     #         destination.
     #
