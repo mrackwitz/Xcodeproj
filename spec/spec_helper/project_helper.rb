@@ -63,12 +63,15 @@ module SpecHelper
     # @param  [Symbol] type
     #         the type, where the specific
     #
+    # @param  [String] config_identifier
+    #         the directory name for the Xcode version
+    #
     # @param  [Hash{String => String}]
     #         the build settings
     #
-    def load_settings(path, type)
+    def load_settings(path, type, config_identifier)
       # Load fixture
-      base_path = Pathname(data_path(Xcodeproj::Application.current.config_identifier))
+      base_path = Pathname(data_path(config_identifier))
       config_base_path = base_path + 'configs'
       config_fixture = config_base_path + "#{path}" + "#{path}_#{type}.xcconfig"
       config = Xcodeproj::Config.new(config_fixture)

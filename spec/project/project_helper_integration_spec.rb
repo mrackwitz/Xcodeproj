@@ -56,7 +56,7 @@ module ProjectHelperSpecs
 
     shared 'configuration settings' do
       extend SpecHelper::ProjectHelper
-      built_settings = subject.common_build_settings(configuration, platform, nil, product_type, (language rescue nil))
+      built_settings = subject.common_build_settings(configuration, platform, nil, product_type, (language rescue nil), version)
       compare_settings(built_settings, fixture_settings[configuration], [configuration, platform, product_type, (language rescue nil)])
     end
 
@@ -78,7 +78,7 @@ module ProjectHelperSpecs
 
         @path = path
         def self.fixture_settings
-          Hash[[:debug, :release].map { |c| [c, load_settings(@path, c)] }]
+          Hash[[:debug, :release].map { |c| [c, load_settings(@path, c, version)] }]
         end
 
         behaves_like 'target settings'
@@ -87,107 +87,115 @@ module ProjectHelperSpecs
       return path
     end
 
+    # Test all known Xcode versions
     describe '::common_build_settings' do
+      Dir['data/*'].each do |dir|
+        version = File.basename(dir)
 
-      def swift_available?
-        Xcodeproj::Application.current.short_version.to_i >= 6
+        describe "for version #{version}" do
+          define :version => version
+
+          def swift_available?
+            version.to_i >= 6
+          end
+
+          describe "on platform OSX" do
+            define :platform => :osx
+
+            describe "for product type bundle" do
+              define :product_type => :bundle
+              behaves_like target_from_fixtures 'OSX_Bundle'
+            end
+
+            describe "in language Objective-C" do
+              define :language => :objc
+
+              describe "for product type Dynamic Library" do
+                define :product_type => :dynamic_library
+                behaves_like target_from_fixtures 'Objc_OSX_DynamicLibrary'
+              end
+
+              describe "for product type Framework" do
+                define :product_type => :framework
+                behaves_like target_from_fixtures 'Objc_OSX_Framework'
+              end
+
+              describe "for product type Application" do
+                define :product_type => :application
+                behaves_like target_from_fixtures 'Objc_OSX_Native'
+              end
+
+              describe "for product type Static Library" do
+                define :product_type => :static_library
+                behaves_like target_from_fixtures 'Objc_OSX_StaticLibrary'
+              end
+            end
+
+            describe "in language Swift" do
+              define :language => :swift
+
+              describe "for product type Framework" do
+                define :product_type => :framework
+                behaves_like target_from_fixtures 'Swift_OSX_Framework'
+              end
+
+              describe "for product type Application" do
+                define :product_type => :application
+                behaves_like target_from_fixtures 'Swift_OSX_Native'
+              end
+            end if swift_available?
+          end
+
+          describe "on platform iOS" do
+            define :platform => :ios
+
+            def frameworks_available?
+              swift_available?
+            end
+
+            # TODO: Create a target and dump its config
+            #describe "for product type Bundle" do
+            #  define :product_type => :bundle
+            #  behaves_like target_from_fixtures 'iOS_Bundle'
+            #end
+
+            describe "in language Objective-C" do
+              define :language => :objc
+
+              describe "for product type Framework" do
+                define :product_type => :framework
+                behaves_like target_from_fixtures 'Objc_iOS_Framework'
+              end if frameworks_available?
+
+              describe "for product type Application" do
+                define :product_type => :application
+                behaves_like target_from_fixtures 'Objc_iOS_Native'
+              end
+
+              describe "for product type Static Library" do
+                define :product_type => :static_library
+                behaves_like target_from_fixtures 'Objc_iOS_StaticLibrary'
+              end
+            end
+
+            describe "in language Swift" do
+              define :language => :swift
+
+              describe "for product type Framework" do
+                define :product_type => :framework
+                behaves_like target_from_fixtures 'Swift_iOS_Framework'
+              end if frameworks_available?
+
+              describe "for product type Application" do
+                define :product_type => :application
+                behaves_like target_from_fixtures 'Swift_iOS_Native'
+              end
+            end if swift_available?
+
+          end
+
+        end
       end
-
-      describe "on platform OSX" do
-        define :platform => :osx
-
-        describe "for product type bundle" do
-          define :product_type => :bundle
-          behaves_like target_from_fixtures 'OSX_Bundle'
-        end
-
-        describe "in language Objective-C" do
-          define :language => :objc
-
-          describe "for product type Dynamic Library" do
-            define :product_type => :dynamic_library
-            behaves_like target_from_fixtures 'Objc_OSX_DynamicLibrary'
-          end
-
-          describe "for product type Framework" do
-            define :product_type => :framework
-            behaves_like target_from_fixtures 'Objc_OSX_Framework'
-          end
-
-          describe "for product type Application" do
-            define :product_type => :application
-            behaves_like target_from_fixtures 'Objc_OSX_Native'
-          end
-
-          describe "for product type Static Library" do
-            define :product_type => :static_library
-            behaves_like target_from_fixtures 'Objc_OSX_StaticLibrary'
-          end
-        end
-
-        describe "in language Swift" do
-          define :language => :swift
-
-          describe "for product type Framework" do
-            define :product_type => :framework
-            behaves_like target_from_fixtures 'Swift_OSX_Framework'
-          end
-
-          describe "for product type Application" do
-            define :product_type => :application
-            behaves_like target_from_fixtures 'Swift_OSX_Native'
-          end
-        end if swift_available?
-      end
-
-      describe "on platform iOS" do
-        define :platform => :ios
-
-        def frameworks_available?
-          swift_available?
-        end
-
-        # TODO: Create a target and dump its config
-        #describe "for product type Bundle" do
-        #  define :product_type => :bundle
-        #  behaves_like target_from_fixtures 'iOS_Bundle'
-        #end
-
-        describe "in language Objective-C" do
-          define :language => :objc
-
-          describe "for product type Framework" do
-            define :product_type => :framework
-            behaves_like target_from_fixtures 'Objc_iOS_Framework'
-          end if frameworks_available?
-
-          describe "for product type Application" do
-            define :product_type => :application
-            behaves_like target_from_fixtures 'Objc_iOS_Native'
-          end
-
-          describe "for product type Static Library" do
-            define :product_type => :static_library
-            behaves_like target_from_fixtures 'Objc_iOS_StaticLibrary'
-          end
-        end
-
-        describe "in language Swift" do
-          define :language => :swift
-
-          describe "for product type Framework" do
-            define :product_type => :framework
-            behaves_like target_from_fixtures 'Swift_iOS_Framework'
-          end if frameworks_available?
-
-          describe "for product type Application" do
-            define :product_type => :application
-            behaves_like target_from_fixtures 'Swift_iOS_Native'
-          end
-        end if swift_available?
-
-      end
-
     end
   end
 end
