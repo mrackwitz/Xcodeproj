@@ -168,7 +168,11 @@ begin
       mkdir_p PROJECT_DIR
 
       subtitle "Create a new fixture project"
-      Xcodeproj::Project.new(PROJECT_PATH).save
+      project = Xcodeproj::Project.new(PROJECT_PATH)
+      project.build_configuration_list.build_configurations.each do |bc|
+        bc.build_settings = {} # Reset the build settings
+      end
+      project.save
 
       subtitle "Open the project …"
       sh "open '#{PROJECT_PATH}'"
