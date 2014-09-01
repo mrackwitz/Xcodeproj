@@ -16,7 +16,7 @@ module ProjectSpecs
       })
       app.stubs(:is_a?).with(Xcodeproj::Application).returns(true)
       Xcodeproj::Application.stubs(:current).returns(app)
-      @config_path = Pathname('data') + app.config_identifier
+      @config_path = Pathname(data_path(app.config_identifier)) + 'configs'
     end
 
     describe '#initialize' do
@@ -212,12 +212,12 @@ module ProjectSpecs
     describe '#config_dir_for_version' do
       it 'returns the dir for the current Xcode app by default' do
         subject.config_dir_for_version \
-          .should.be.eql?(Pathname('data/5.1.1_5B1008/configs'))
+          .should.be.eql?(Pathname(data_path('5.1.1_5B1008/configs')).realpath)
       end
 
       it 'returns the dir for the specified version if it exists' do
         subject.config_dir_for_version('6.0_6A279r') \
-          .should.be.eql?(Pathname('data/6.0_6A279r/configs'))
+          .should.be.eql?(Pathname(data_path('6.0_6A279r/configs')).realpath)
       end
 
       it 'raises on ambiguous version specifier' do

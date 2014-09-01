@@ -1,3 +1,4 @@
+require 'pathname'
 require 'active_support/inflector'
 require 'xcodeproj/helper'
 
@@ -7,6 +8,8 @@ module Xcodeproj
   # configuration, which has preset build settings
   #
   class TargetConfiguration
+
+    DATA_PATH = Pathname(File.expand_path(__FILE__)) + '../../../data'
 
     extend Xcodeproj::Helper::EnumAccessor
 
@@ -168,14 +171,14 @@ module Xcodeproj
       if version.is_a? Xcodeproj::Application
         app = version
         version = app.product_build_version
-        dir = "data/#{app.config_identifier}"
+        dir = DATA_PATH + app.config_identifier
       else
-        dirs = Dir["data/*#{version}*"]
+        dirs = Dir[DATA_PATH + "*#{version}*"]
         raise "Ambiguous version specified. Please use product build version to select one of:\n#{dirs.join(', ')}" if dirs.count > 1
-        dir = dirs.first
+        dir = Pathname(dirs.first)
       end
       raise "No config found for version '#{version}'." unless File.directory?(dir)
-      Pathname("#{dir}/configs")
+      dir + "configs"
     end
 
   end
