@@ -92,7 +92,6 @@ module ProjectSpecs
 
         settings_1.object_id.should.not == settings_2.object_id
         settings_1['SDKROOT'].object_id.should.not == settings_2['SDKROOT'].object_id
-        settings_1['SDKROOT'][1].object_id.should.not == settings_2['SDKROOT'][1].object_id
       end
     end
 
