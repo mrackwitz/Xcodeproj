@@ -91,13 +91,20 @@ module Xcodeproj
     # @return [Hash]
     #
     def settings(version=nil)
+      # Deserialize dumped config
       dir = config_dir_for_version(version)
       config = Config.new(dir + config_file_path)
       config.merge_with_includes!
       settings = config.to_hash
+
+      # Get rid of settings, which should been excluded
+      settings.reject! { |k,_| Constants::EXCLUDE_BUILD_SETTINGS_KEYS.include?(k) }
+
+      # Overwrite the deployment target if present
       if deployment_target
         settings[deployment_target_setting_key] = deployment_target
       end
+
       settings
     end
 
