@@ -105,6 +105,9 @@ module Xcodeproj
         settings[deployment_target_setting_key] = deployment_target
       end
 
+      # Overwrite the SDKROOT
+      settings['SDKROOT'] = sdk_root
+
       settings
     end
 
@@ -116,6 +119,18 @@ module Xcodeproj
       case platform
         when :ios then 'IPHONEOS_DEPLOYMENT_TARGET'
         when :osx then 'MACOSX_DEPLOYMENT_TARGET'
+      end
+    end
+
+    # Return the value for the `SDKROOT` build setting according to the
+    # #platform attribute.
+    #
+    # @return [String]
+    #
+    def sdk_root
+      case platform
+        when :ios then 'iphoneos'
+        when :osx then 'macosx'
       end
     end
 
