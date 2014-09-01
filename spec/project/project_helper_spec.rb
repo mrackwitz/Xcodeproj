@@ -44,7 +44,7 @@ module ProjectSpecs
         build_settings['SDKROOT'].should == 'iphoneos'
         build_settings['PRODUCT_NAME'].should == '$(TARGET_NAME)'
         build_settings['WRAPPER_EXTENSION'].should == 'bundle'
-        build_settings['SKIP_INSTALL'].should == 'YES'
+        #build_settings['SKIP_INSTALL'].should == 'YES'
 
         @project.targets.should.include target
         @project.products.should.include target.product_reference
