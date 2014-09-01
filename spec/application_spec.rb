@@ -33,14 +33,14 @@ describe Xcodeproj::Application do
 
   describe '#info_plist_path' do
     it 'should be the expected path' do
-      @app.info_plist_path.should
+      @app.info_plist_path.should \
         .eql?(Pathname("#{@app_path}/Contents/Info.plist"))
     end
   end
 
   describe '#version_plist_path' do
     it 'should be the expected path' do
-      @app.version_plist_path.should
+      @app.version_plist_path.should \
         .eql?(Pathname("#{@app_path}/Contents/version.plist"))
     end
   end
