@@ -5,12 +5,19 @@ module ProjectHelperSpecs
 
     #
     # These specs run `Xcodeproj::Project::ProjectHelper::common_build_settings`
-    # against the xcconfig files in spec/fixtures/CommonBuildSettings/configs
-    # with various parameter combinations.
+    # against the xcconfig files in data with various parameter combinations.
     #
-    # To update the fixtures, you can do the following:
+    # To update the data, you can do the following:
     #
-    # 1. Open a new term and exec the following rake task.
+    # 1. Open a new term and check your currently selected Xcode version by:
+    #
+    #    `rake xcode:current`
+    #
+    # 2. Select another Xcode version, if needed:
+    #
+    #    `rake xcode:select[6b6]`
+    #
+    # 3. Exec the following rake task.
     #
     #    `rake common_build_settings:rebuild`
     #
@@ -20,16 +27,27 @@ module ProjectHelperSpecs
     #      * Give an interactive guide to create the needed targets
     #      * Dump the build settings to xcconfig files
     #
-    # 2. Add the files to git and commit
-    #
-    #    ```
-    #    git add spec/fixtures/CommonBuildSettings
-    #    git commit -m "[Fixtures] Updated CommonBuildSettings"
-    #    ````
-    #
-    # 3. Run specs and modify lib/xcodeproj/constants.rb until all tests succeed
+    # 4. Run specs and check if all tests still succeed
     #
     #    `rake spec:single[spec/project/project_helper_integration_spec.rb]`
+    #
+    # 5. Add the files to git and commit
+    #
+    #    ```
+    #    git add data
+    #    git commit -m "[Data] Added new samples for <PLACE-XCODE-VERSION-HERE>"
+    #    ````
+    #
+    # 6. Reset your Xcode version, if you changed it.
+    #
+    #    `rake xcode:select[5]`
+    #
+    #
+    # Note:
+    #
+    # If there have been introduced new target configurations, you need to add
+    # those in lib/xcodeproj/constants.rb to `TARGET_CONFIGURATIONS`.
+    # You need to reflect this change here, so the new config will been tested.
     #
 
     def subject
