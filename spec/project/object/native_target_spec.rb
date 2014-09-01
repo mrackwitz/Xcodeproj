@@ -154,7 +154,7 @@ module ProjectSpecs
 
         it "configures new build configurations according to the given type" do
           @target.add_build_configuration('App Store', :release)
-          @target.build_settings('App Store')['OTHER_CFLAGS'].should == ['-DNS_BLOCK_ASSERTIONS=1', "$(inherited)"]
+          @target.build_settings('App Store')['COPY_PHASE_STRIP'].should == 'YES'
         end
 
         it "doesn't duplicate build configurations with existing names" do
