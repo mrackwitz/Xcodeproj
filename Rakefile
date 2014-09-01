@@ -87,6 +87,60 @@ begin
     @rvm_ruby_dir ||= File.expand_path('../..', `which ruby`.strip)
   end
 
+
+  # Xcode
+  #-----------------------------------------------------------------------------#
+
+  namespace :xcode do
+
+    desc "Shows info about the currently selected Xcode app version"
+    task :current do
+      require 'xcodeproj'
+      puts "#{green('*')} #{Xcodeproj::Application.current.pretty_print}"
+      puts
+    end
+
+    desc "Locate all installed Xcode app versions"
+    task :all do
+      require 'xcodeproj'
+      Xcodeproj::Application.all.each do |app|
+        indicator = green(Xcodeproj::Application.current == app ? '*' : ' ')
+        puts "#{indicator} #{app.pretty_print}"
+        puts
+      end
+    end
+
+    desc "Select a Xcode version (with fuzzy-match on version, build and path. e.g. 6b3)"
+    task :select, [:version] do |_, args|
+      require 'xcodeproj'
+      version = args[:version]
+      if version.nil?
+        puts red('Version is required!')
+        exit 1
+      end
+      pattern = Regexp.new(version.downcase.chars.join('.*'), 'i')
+      apps = Xcodeproj::Application.all.select do |app|
+        app.short_version.match(pattern) \
+        || app.product_build_version.match(pattern) \
+        || app.path.basename.to_s.match(pattern)
+      end
+      if apps.count == 1
+        apps.first.select!
+        puts green('Selected:')
+        Rake::Task['xcode:current'].invoke()
+      elsif apps.count > 1
+        puts red('Ambiguous reference provided. Multiple matches:')
+        puts apps.inject('') { |s,app| s+"  #{app.pretty_print}\n\n" }
+        exit 1
+      else
+        puts red('Unknown version. You have installed the following Xcode versions:')
+        Rake::Task['xcode:all'].invoke()
+      end
+    end
+
+  end
+
+
   # Common Build settings
   #-----------------------------------------------------------------------------#
 
