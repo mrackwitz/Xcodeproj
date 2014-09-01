@@ -33,10 +33,24 @@ module Xcodeproj
 
     # Init a new instance
     #
+    # @raise  [ArgumentError]
+    #         if an invalid value was provided for any attribute
+    #
+    # @raise  [ArgumentError]
+    #         if no value was provided for a required attribute
+    #
     # @params [Hash{Symbol => Symbol|String}] params
-    #         key-value pairs for the attributes
+    #         key-value pairs for the attributes. The following attributes are
+    #         required on initialization:
+    #          * :platform
+    #          * :product_type
     #
     def initialize(params)
+      # Ensure that required attribute setters will be called, so that nil
+      # values cause an validation error
+      params = { platform: nil, product_type: nil }.merge(params)
+
+      # Call setters
       params.each do |key,value|
         raise "[Xcodeproj] Invalid option `#{key}` passed to #{self.class} initializer" unless respond_to?(key)
         send "#{key}=", value
