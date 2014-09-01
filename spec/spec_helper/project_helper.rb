@@ -68,8 +68,9 @@ module SpecHelper
     #
     def load_settings(path, type)
       # Load fixture
-      base_path = Pathname(fixture_path("CommonBuildSettings/configs/#{path}"))
-      config_fixture = base_path + "#{path}_#{type}.xcconfig"
+      base_path = Pathname(data_path(Xcodeproj::Application.current.config_identifier))
+      config_base_path = base_path + 'configs'
+      config_fixture = config_base_path + "#{path}" + "#{path}_#{type}.xcconfig"
       config = Xcodeproj::Config.new(config_fixture)
       config.merge_with_includes!
       settings = config.to_hash
