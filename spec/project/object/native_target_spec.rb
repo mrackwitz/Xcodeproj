@@ -124,7 +124,7 @@ module ProjectSpecs
       it "returns the deployment target" do
         @project.build_configuration_list.set_setting('IPHONEOS_DEPLOYMENT_TARGET', '4.3')
         ios_target = @project.new_target(:static_library, 'Pods', :ios)
-        ios_target.build_configurations.first.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = nil
+        ios_target.build_configurations.map { |bc| bc.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = nil }
         ios_target.deployment_target.should == '4.3'
       end
 
