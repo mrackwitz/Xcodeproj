@@ -14,6 +14,14 @@ module Xcodeproj
       @current ||= Application.new(Pathname(`xcode-select -p`.chomp) + '../..')
     end
 
+    # Return all installed Xcode applications
+    #
+    # @return [Array<Application>]
+    #
+    def self.all
+      Dir['/Applications/*Xcode*.app'].map { |path| new(path) }
+    end
+
     # @return [Pathname]
     #         the path of the .app bundle
     attr_reader :path
@@ -26,6 +34,15 @@ module Xcodeproj
     def initialize(path)
       raise "Directory '#{path}' doesn't exist!" unless File.directory?(path)
       @path = Pathname(path)
+    end
+
+    # Set the receiver system-wide as selected Xcode installation
+    #
+    # @return [void]
+    #
+    def select!
+      error = `sudo xcode-select -s "#{path.realpath}"`
+      raise error unless $?.success?
     end
 
     # Return Contents path of the app bundle
@@ -82,6 +99,28 @@ module Xcodeproj
     #
     def config_identifier
       "#{short_version}_#{product_build_version}"
+    end
+
+    # A human-readable representation to been printed in a term
+    #
+    # @return [String]
+    #
+    def pretty_print
+      [
+        "#{short_version} (#{product_build_version})",
+        "    Path:            #{path}",
+        "    Developer Path:  #{contents_path + 'Developer'}",
+        "    Data Identifier: #{config_identifier}"
+      ].join("\n")
+    end
+
+    # Check for equality
+    #
+    # @return [Bool]
+    #
+    def ==(other)
+      return false unless other.is_a?(self.class)
+      self.path == other.path
     end
 
     private
