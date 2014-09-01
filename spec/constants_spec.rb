@@ -11,11 +11,11 @@ describe Xcodeproj::Constants do
     end
 
     it 'has keys which are arrays' do
-      (subject.keys - [:all]).all? { |k| k.instance_of? Array }.should.be.true?
+      (subject.keys - [:all]).should.all_conform? { |k| k.instance_of? Array }
     end
 
     it 'has values which are all frozen' do
-      subject.select { |_,v| !v.frozen? }.keys.should.be.empty?
+      subject.should.all_conform? { |_,v| v.frozen? }
     end
   end
 end

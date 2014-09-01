@@ -38,6 +38,21 @@ def fixture_path(path)
   File.join(File.dirname(__FILE__), "fixtures", path)
 end
 
+# Define custom matchers
+class Should
+
+  # Checks if all values satisfy a given predicate
+  #
+  def all_conform?(&predicate)
+    non_conforming = @object.reject &predicate
+    list = non_conforming.map { |v| "  * #{v}" }.join("\n")
+    satisfy("Not all elements conform predicate:\n#{list}") do
+      non_conforming.empty?
+    end
+  end
+
+end
+
 class Hash
   def recursive_diff(other, self_key = 'self', other_key = 'other')
     Xcodeproj::Differ.project_diff(self, other, self_key, other_key)
