@@ -21,19 +21,19 @@ module ProjectSpecs
 
     describe '#initialize' do
       it 'raises fail if platform is not given' do
-        -> {
+        lambda {
           subject.new(product_type: :application)
         }.should.raise?(ArgumentError, "[Xcodeproj] Type checking error: got nil for attribute: platform")
       end
 
       it 'raises if product_type is not given' do
-        -> {
+        lambda {
           subject.new(platform: :ios)
         }.should.raise?(ArgumentError, "[Xcodeproj] Type checking error: got nil for attribute: product_type")
       end
 
       it 'does not raise if all required attributes are provided' do
-        -> {
+        lambda {
           subject.new(product_type: :application, platform: :ios)
         }.should.not.raise?
       end
@@ -69,7 +69,7 @@ module ProjectSpecs
 
         it 'raises for invalid values' do
           # Provoking an all of sudden fail of an existing test
-          -> { @subject.platform = :iwatch }.should.raise?(ArgumentError)
+          lambda { @subject.platform = :iwatch }.should.raise?(ArgumentError)
         end
       end
 
@@ -95,7 +95,7 @@ module ProjectSpecs
         end
 
         it 'raises for invalid values' do
-          -> { @subject.product_type = :trashcan }.should.raise?(ArgumentError)
+          lambda { @subject.product_type = :trashcan }.should.raise?(ArgumentError)
         end
       end
 
@@ -108,7 +108,7 @@ module ProjectSpecs
         end
 
         it 'raises for invalid values' do
-          -> { @subject.language = :haskell }.should.raise?(ArgumentError)
+          lambda { @subject.language = :haskell }.should.raise?(ArgumentError)
         end
       end
 
@@ -121,7 +121,7 @@ module ProjectSpecs
         end
 
         it 'raises for invalid values' do
-          -> { @subject.type = :beta }.should.raise?(ArgumentError)
+          lambda { @subject.type = :beta }.should.raise?(ArgumentError)
         end
       end
     end
@@ -221,13 +221,13 @@ module ProjectSpecs
       end
 
       it 'raises on ambiguous version specifier' do
-        -> {
+        lambda {
           subject.config_dir_for_version('_')
         }.should.raise?(StandardError)
       end
 
       it 'raises on unknown version' do
-        -> {
+        lambda {
           subject.config_dir_for_version('5.3.0_5B1337')
         }.should.raise?(StandardError, "No config found for version '5.3.0_5B1337'.")
       end

@@ -132,7 +132,7 @@ module ProjectSpecs
         mac_target = @project.new_target(:static_library, 'Pods', :osx)
         mac_target.build_configurations[0].build_settings['MACOSX_DEPLOYMENT_TARGET'] = '10.8'
         mac_target.build_configurations[1].build_settings['MACOSX_DEPLOYMENT_TARGET'] = '10.9'
-        -> {
+        lambda {
           mac_target.deployment_target
         }.should.raise?(StandardError, '[Xcodeproj] Consistency issue: build setting `MACOSX_DEPLOYMENT_TARGET` has multiple values: `{"Release"=>"10.9", "Debug"=>"10.10"}`')
       end

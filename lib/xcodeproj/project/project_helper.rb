@@ -94,7 +94,7 @@ module Xcodeproj
         target.product_name = name
         target.product_type = Constants::PRODUCT_TYPE_UTI[:bundle]
 
-        build_settings_for_type = -> (type) do
+        build_settings_for_type = lambda do |type|
           common_build_settings(type, platform, nil, target.product_type)
         end
 

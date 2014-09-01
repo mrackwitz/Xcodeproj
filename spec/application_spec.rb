@@ -25,7 +25,7 @@ describe Xcodeproj::Application do
 
     it 'should fail if the given path doesn\'t exist' do
       @fixture_path = fixture_path('FakeXcode-beta.app')
-      -> {
+      lambda {
         subject.new(@fixture_path)
       }.should.raise?(StandardError, "File doesn't exist #{@fixture_path}!")
     end
