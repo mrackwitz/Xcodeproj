@@ -61,10 +61,10 @@ module Xcodeproj
     #
     def config_dir_name
       [
-        language.to_s.camelize,
-        platform_name,
+        product_type != :bundle ? language.to_s.camelize : nil,
+        product_type != :bundle ? platform_name : 'OSX',
         product_type == :application ? 'Native' : product_type.to_s.camelize
-      ].reject(&:empty?).join('_')
+      ].map(&:to_s).reject(&:empty?).join('_')
     end
 
     # Return the path of the config file
