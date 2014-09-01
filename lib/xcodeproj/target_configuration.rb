@@ -163,7 +163,7 @@ module Xcodeproj
     #
     # @return [Pathname]
     #
-    def self.config_dir_for_version(version)
+    def self.config_dir_for_version(version=nil)
       version ||= Xcodeproj::Application.current
       if version.is_a? Xcodeproj::Application
         app = version

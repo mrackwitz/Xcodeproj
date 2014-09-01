@@ -211,7 +211,7 @@ module ProjectSpecs
 
     describe '#config_dir_for_version' do
       it 'returns the dir for the current Xcode app by default' do
-        subject.config_dir_for_version(nil)
+        subject.config_dir_for_version
           .should.be.eql?(Pathname('data/5.1.1_5B1008/configs'))
       end
 
