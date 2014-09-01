@@ -3,13 +3,6 @@ require 'colored'
 module SpecHelper
   module ProjectHelper
 
-    # Keys which are excluded from comparison
-    EXCLUDED_KEYS = [
-        'INFOPLIST_FILE',
-        'MACOSX_DEPLOYMENT_TARGET',
-        'IPHONEOS_DEPLOYMENT_TARGET',
-    ].freeze
-
     # Generates test cases to compare two settings hashes.
     #
     # @param [Hash{String => String}] produced
@@ -82,7 +75,7 @@ module SpecHelper
       settings = config.to_hash
 
       # Filter exclusions
-      settings = apply_exclusions(settings, EXCLUDED_KEYS)
+      settings = apply_exclusions(settings, Xcodeproj::Constants::EXCLUDE_BUILD_SETTINGS_KEYS)
 
       return settings
     end
