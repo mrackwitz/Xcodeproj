@@ -10,9 +10,9 @@ module ProjectSpecs
 
     before do
       app = stub('App', {
-        version:               '5.1.1',
-        product_build_version: '5B1008',
-        config_identifier:     '5.1.1_5B1008',
+        :version               => '5.1.1',
+        :product_build_version => '5B1008',
+        :config_identifier     => '5.1.1_5B1008',
       })
       app.stubs(:is_a?).with(Xcodeproj::Application).returns(true)
       Xcodeproj::Application.stubs(:current).returns(app)
@@ -22,29 +22,29 @@ module ProjectSpecs
     describe '#initialize' do
       it 'raises fail if platform is not given' do
         lambda {
-          subject.new(product_type: :application)
+          subject.new(:product_type => :application)
         }.should.raise?(ArgumentError, "[Xcodeproj] Type checking error: got nil for attribute: platform")
       end
 
       it 'raises if product_type is not given' do
         lambda {
-          subject.new(platform: :ios)
+          subject.new(:platform => :ios)
         }.should.raise?(ArgumentError, "[Xcodeproj] Type checking error: got nil for attribute: product_type")
       end
 
       it 'does not raise if all required attributes are provided' do
         lambda {
-          subject.new(product_type: :application, platform: :ios)
+          subject.new(:product_type => :application, :platform => :ios)
         }.should.not.raise?
       end
 
       it 'sets the provided attributes' do
         config = subject.new({
-          platform: :ios,
-          deployment_target: '6.0',
-          product_type: :application,
-          language: :swift,
-          type: :debug
+          :platform => :ios,
+          :deployment_target => '6.0',
+          :product_type => :application,
+          :language => :swift,
+          :type => :debug
         })
         config.platform.should.be.eql?(:ios)
         config.deployment_target.should.be.eql?('6.0')
@@ -56,7 +56,7 @@ module ProjectSpecs
 
     describe 'attributes' do
       before do
-        @subject = subject.new(product_type: :application, platform: :ios)
+        @subject = subject.new(:product_type => :application, :platform => :ios)
       end
 
       describe '#platform=' do
@@ -128,83 +128,83 @@ module ProjectSpecs
 
     describe '#platform_name' do
       it 'returns the correct value for iOS' do
-        subject.new(product_type: :application, platform: :ios)
+        subject.new(:product_type => :application, :platform => :ios)
           .platform_name.should.be.eql?('iOS')
       end
 
       it 'returns the correct value for OSX' do
-        subject.new(product_type: :application, platform: :osx)
+        subject.new(:product_type => :application, :platform => :osx)
           .platform_name.should.be.eql?('OSX')
       end
     end
 
     describe '#config_dir_name' do
       it 'match the expected dir for applications' do
-        subject.new(product_type: :application, platform: :ios, language: :objc)
+        subject.new(:product_type => :application, :platform => :ios, :language => :objc)
           .config_dir_name.should.eql?('Objc_iOS_Native')
       end
 
       it 'match the expected dir for bundles' do
-        subject.new(product_type: :bundle, platform: :osx)
+        subject.new(:product_type => :bundle, :platform => :osx)
           .config_dir_name.should.eql?('OSX_Bundle')
 
         # yes OSX_, there is no Xcode template for iOS
-        subject.new(product_type: :bundle, platform: :ios)
+        subject.new(:product_type => :bundle, :platform => :ios)
           .config_dir_name.should.eql?('OSX_Bundle')
       end
     end
 
     describe '#config_file_path' do
       it 'match the expected file for Objective-C iOS applications' do
-        subject.new(product_type: :application, platform: :ios, language: :objc, type: :release)
+        subject.new(:product_type => :application, :platform => :ios, :language => :objc, :type => :release)
           .config_file_path.should.eql?(Pathname('Objc_iOS_Native/Objc_iOS_Native_release.xcconfig'))
       end
     end
 
     describe '#base_config_file_path' do
       it 'match the expected file for Objective-C iOS applications' do
-        subject.new(product_type: :application, platform: :ios, language: :objc, type: :release)
+        subject.new(:product_type => :application, :platform => :ios, :language => :objc, :type => :release)
           .base_config_file_path.should.eql?(Pathname('Objc_iOS_Native/Objc_iOS_Native_base.xcconfig'))
       end
     end
 
     describe '#settings' do
       it 'sets the deployment target for iOS apps' do
-        subject.new(product_type: :application, platform: :ios, deployment_target: '1.0', language: :objc, type: :debug)
+        subject.new(:product_type => :application, :platform => :ios, :deployment_target => '1.0', :language => :objc, :type => :debug)
           .settings['IPHONEOS_DEPLOYMENT_TARGET'].should.be.eql?('1.0')
       end
 
       it 'sets the deployment target for OSX apps' do
-        subject.new(product_type: :application, platform: :osx, deployment_target: '10.3', language: :objc, type: :debug)
+        subject.new(:product_type => :application, :platform => :osx, :deployment_target => '10.3', :language => :objc, :type => :debug)
           .settings['MACOSX_DEPLOYMENT_TARGET'].should.be.eql?('10.3')
       end
 
       it 'sets the expected SDK for iOS bundles' do
-        subject.new(product_type: :bundle, platform: :ios, type: :debug)
+        subject.new(:product_type => :bundle, :platform => :ios, :type => :debug)
           .settings['SDKROOT'].should.be.eql?('iphoneos')
       end
     end
 
     describe '#deployment_target_setting_key' do
       it 'returns the correct value for iOS' do
-        subject.new(product_type: :application, platform: :ios)
+        subject.new(:product_type => :application, :platform => :ios)
           .deployment_target_setting_key.should.be.eql?('IPHONEOS_DEPLOYMENT_TARGET')
       end
 
       it 'returns the correct value for OSX' do
-        subject.new(product_type: :application, platform: :osx)
+        subject.new(:product_type => :application, :platform => :osx)
           .deployment_target_setting_key.should.be.eql?('MACOSX_DEPLOYMENT_TARGET')
       end
     end
 
     describe '#sdk_root' do
       it 'returns the correct value for iOS' do
-        subject.new(product_type: :application, platform: :ios)
+        subject.new(:product_type => :application, :platform => :ios)
           .sdk_root.should.be.eql?('iphoneos')
       end
 
       it 'returns the correct value for OSX' do
-        subject.new(product_type: :application, platform: :osx)
+        subject.new(:product_type => :application, :platform => :osx)
           .sdk_root.should.be.eql?('macosx')
       end
     end

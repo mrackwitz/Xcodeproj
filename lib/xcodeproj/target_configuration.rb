@@ -48,7 +48,7 @@ module Xcodeproj
     def initialize(params)
       # Ensure that required attribute setters will be called, so that nil
       # values cause an validation error
-      params = { platform: nil, product_type: nil }.merge(params)
+      params = { :platform => nil, :product_type => nil }.merge(params)
 
       # Call setters
       params.each do |key,value|

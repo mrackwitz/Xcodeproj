@@ -196,11 +196,11 @@ module Xcodeproj
         product_type = (Constants::PRODUCT_TYPE_UTI.find { |_,v| v == target_product_type } || [target_product_type])[0]
 
         target_config = TargetConfiguration.new({
-          type:              type,
-          platform:          platform,
-          deployment_target: deployment_target,
-          product_type:      product_type,
-          language:          language,
+          :type              => type,
+          :platform          => platform,
+          :deployment_target => deployment_target,
+          :product_type      => product_type,
+          :language          => language,
         })
 
         target_config.settings(version)
