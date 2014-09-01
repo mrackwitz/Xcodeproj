@@ -272,6 +272,8 @@ module Xcodeproj
     PROJECT_PATH_DEPENDENT_BUILD_SETTINGS = {
       'GCC_PREFIX_HEADER' => -> (t) { "#{t}/#{t}.plist" },
       'INFOPLIST_FILE'    => -> (t) { "#{t}/#{t}-Info.plist" },
+      'DSTROOT'           => -> (t) { "/tmp/#{t}.dst" },
+      'BUNDLE_LOADER'     => -> (t) { "$(BUILT_PRODUCTS_DIR)/#{t}.app/#{t}" },
     }.freeze
 
     # @return [Array<String>]
