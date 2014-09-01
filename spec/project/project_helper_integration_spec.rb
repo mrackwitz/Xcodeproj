@@ -71,6 +71,10 @@ module ProjectHelperSpecs
 
     describe '::common_build_settings' do
 
+      def swift_available?
+        Xcodeproj::Application.current.short_version.to_i >= 6
+      end
+
       describe "on platform OSX" do
         define platform: :osx
 
@@ -115,11 +119,15 @@ module ProjectHelperSpecs
             define product_type: :application
             behaves_like target_from_fixtures 'Swift_OSX_Native'
           end
-        end
+        end if swift_available?
       end
 
       describe "on platform iOS" do
         define platform: :ios
+
+        def frameworks_available?
+          swift_available?
+        end
 
         # TODO: Create a target and dump its config
         #describe "for product type Bundle" do
@@ -133,7 +141,7 @@ module ProjectHelperSpecs
           describe "for product type Framework" do
             define product_type: :framework
             behaves_like target_from_fixtures 'Objc_iOS_Framework'
-          end
+          end if frameworks_available?
 
           describe "for product type Application" do
             define product_type: :application
@@ -152,13 +160,13 @@ module ProjectHelperSpecs
           describe "for product type Framework" do
             define product_type: :framework
             behaves_like target_from_fixtures 'Swift_iOS_Framework'
-          end
+          end if frameworks_available?
 
           describe "for product type Application" do
             define product_type: :application
             behaves_like target_from_fixtures 'Swift_iOS_Native'
           end
-        end
+        end if swift_available?
 
       end
 
