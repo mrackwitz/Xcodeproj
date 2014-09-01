@@ -265,6 +265,15 @@ module Xcodeproj
       }.freeze,
     }.freeze
 
+    # @return [Hash{String, Proc<(PBXNativeTarget) -> String>}]
+    #         The build settings which are part of the defaults, but are
+    #         dependent on their file location
+    #
+    PROJECT_PATH_DEPENDENT_BUILD_SETTINGS = {
+      'GCC_PREFIX_HEADER' => -> (t) { "#{t}/#{t}.plist" },
+      'INFOPLIST_FILE'    => -> (t) { "#{t}/#{t}-Info.plist" },
+    }.freeze
+
     # @return [Hash] The corresponding numeric value of each copy build phase
     #         destination.
     #
