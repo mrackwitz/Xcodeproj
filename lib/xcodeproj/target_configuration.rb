@@ -106,7 +106,7 @@ module Xcodeproj
     #
     def settings(version=nil)
       # Deserialize dumped config
-      dir = config_dir_for_version(version)
+      dir = self.class.config_dir_for_version(version)
       config = Config.new(dir + config_file_path)
       config.merge_with_includes!
       settings = config.to_hash
@@ -163,7 +163,7 @@ module Xcodeproj
     #
     # @return [Pathname]
     #
-    def config_dir_for_version(version)
+    def self.config_dir_for_version(version)
       version ||= Xcodeproj::Application.current
       if version.is_a? Xcodeproj::Application
         app = version
