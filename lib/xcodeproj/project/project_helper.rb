@@ -189,7 +189,8 @@ module Xcodeproj
       #
       # @return [Hash] The common build settings
       #
-      def self.common_build_settings(type, platform, deployment_target = nil, target_product_type = nil, language = :objc, version = nil)
+      def self.common_build_settings(type, platform, deployment_target = nil, target_product_type = nil, language = nil, version = nil)
+        language ||= :objc
         product_type = (Constants::PRODUCT_TYPE_UTI.find { |_,v| v == target_product_type } || [target_product_type])[0]
 
         target_config = TargetConfiguration.new({
