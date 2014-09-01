@@ -78,11 +78,11 @@ module SpecHelper
       base_path = Pathname(fixture_path("CommonBuildSettings/configs/#{path}"))
       config_fixture = base_path + "#{path}_#{type}.xcconfig"
       config = Xcodeproj::Config.new(config_fixture)
+      config.merge_with_includes!
       settings = config.to_hash
 
       # Filter exclusions
       settings = apply_exclusions(settings, EXCLUDED_KEYS)
-      settings = apply_exclusions(settings, Xcodeproj::Constants::PROJECT_DEFAULT_BUILD_SETTINGS[type != :base ? type : :all])
 
       return settings
     end

@@ -39,16 +39,10 @@ module ProjectHelperSpecs
     shared 'configuration settings' do
       extend SpecHelper::ProjectHelper
       built_settings = subject.common_build_settings(configuration, platform, nil, product_type, (language rescue nil))
-      built_settings = apply_exclusions(built_settings, fixture_settings[:base]) if configuration != :base
       compare_settings(built_settings, fixture_settings[configuration], [configuration, platform, product_type, (language rescue nil)])
     end
 
     shared 'target settings' do
-      describe "in base configuration" do
-        define configuration: :base
-        behaves_like 'configuration settings'
-      end
-
       describe "in Debug configuration" do
         define configuration: :debug
         behaves_like 'configuration settings'
@@ -66,7 +60,7 @@ module ProjectHelperSpecs
 
         @path = path
         def self.fixture_settings
-          Hash[[:base, :debug, :release].map { |c| [c, load_settings(@path, c)] }]
+          Hash[[:debug, :release].map { |c| [c, load_settings(@path, c)] }]
         end
 
         behaves_like 'target settings'
