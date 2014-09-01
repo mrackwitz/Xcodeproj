@@ -7,7 +7,7 @@ describe Xcodeproj::Constants do
     end
 
     it 'has a key :all' do
-      subject[:all].should != nil
+      subject[:all].should.not.be.nil
     end
 
     it 'has keys which are arrays' do
