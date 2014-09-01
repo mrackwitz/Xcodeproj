@@ -20,7 +20,7 @@ module Xcodeproj
 
     # @return [Symbol]
     #         the product type
-    enum_accessor :product_type, Constants::PRODUCT_TYPE_UTI.keys
+    enum_accessor :product_type, [:application, :framework, :dynamic_library, :static_library, :bundle]
 
     # @return [Symbol]
     #         the language
