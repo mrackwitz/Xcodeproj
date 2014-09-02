@@ -206,6 +206,39 @@ describe Xcodeproj::Config do
 
   #---------------------------------------------------------------------------#
 
+  describe '#merge_with_includes!' do
+
+    before do
+      @config_fixture = data_path('5.1.1_5B1008/configs/OSX_Bundle', file)
+      @config = Xcodeproj::Config.new(@config_fixture)
+    end
+
+    describe 'no includes' do
+      def file
+        'OSX_Bundle_base.xcconfig'
+      end
+
+      it 'should do nothing' do
+        hash_before = @config.to_hash
+        @config.merge_with_includes!
+        @config.to_hash.should.be.eql?(hash_before)
+      end
+    end
+
+    describe 'with includes' do
+      def file
+        'OSX_Bundle_release.xcconfig'
+      end
+
+      it 'should include base config' do
+        @config.merge_with_includes!
+        @config.to_hash['SDKROOT'].should.be.eql?('macosx')
+      end
+    end
+  end
+
+  #---------------------------------------------------------------------------#
+
   describe "Private helpers" do
 
     before do

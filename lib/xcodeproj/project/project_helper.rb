@@ -20,9 +20,9 @@ module Xcodeproj
       # @param  [Project] project
       #         the project to which the target should be added.
       #
-      # @param  [Symbol] type
-      #         the type of target. Can be `:application`, `:dynamic_library` or
-      #         `:static_library`.
+      # @param  [Symbol] product_type
+      #         the type of target. Can be `:application`, `:dynamic_library`,
+      #         `framework` or `:static_library`.
       #
       # @param  [String] name
       #         the name of the target product.
@@ -39,18 +39,18 @@ module Xcodeproj
       #
       # @return [PBXNativeTarget] the target.
       #
-      def self.new_target(project, type, name, platform, deployment_target, product_group)
+      def self.new_target(project, product_type, name, platform, deployment_target, product_group)
 
         # Target
         target = project.new(PBXNativeTarget)
         project.targets << target
         target.name = name
         target.product_name = name
-        target.product_type = Constants::PRODUCT_TYPE_UTI[type]
-        target.build_configuration_list = configuration_list(project, platform, deployment_target)
+        target.product_type = Constants::PRODUCT_TYPE_UTI[product_type]
+        target.build_configuration_list = configuration_list(project, platform, deployment_target, product_type)
 
         # Product
-        product = product_group.new_product_ref_for_target(name, type)
+        product = product_group.new_product_ref_for_target(name, product_type)
         target.product_reference = product
 
         # Build phases
@@ -94,18 +94,18 @@ module Xcodeproj
         target.product_name = name
         target.product_type = Constants::PRODUCT_TYPE_UTI[:bundle]
 
-        build_settings = common_build_settings(nil, platform, nil, target.product_type)
+        build_settings_for_type = lambda do |type|
+          common_build_settings(type, platform, nil, target.product_type)
+        end
 
         # Configuration List
         cl = project.new(XCConfigurationList)
-        cl.default_configuration_is_visible = '0'
-        cl.default_configuration_name = 'Release'
         release_conf = project.new(XCBuildConfiguration)
         release_conf.name = 'Release'
-        release_conf.build_settings = build_settings
+        release_conf.build_settings = build_settings_for_type.call(:release)
         debug_conf = project.new(XCBuildConfiguration)
         debug_conf.name = 'Debug'
-        debug_conf.build_settings = build_settings
+        debug_conf.build_settings = build_settings_for_type.call(:debug)
         cl.build_configurations << release_conf
         cl.build_configurations << debug_conf
         cl
@@ -140,20 +140,25 @@ module Xcodeproj
       # @param  [String] deployment_target
       #         the deployment target for the platform.
       #
+      # @param  [Symbol] product_type
+      #         the product type of the target, can be any of
+      #         `Constants::PRODUCT_TYPE_UTI.values` or
+      #         `Constants::PRODUCT_TYPE_UTI.keys`.
+      #
       # @return [XCConfigurationList] the generated configuration list.
       #
-      def self.configuration_list(project, platform, deployment_target = nil)
+      def self.configuration_list(project, platform, deployment_target = nil, product_type = nil)
         cl = project.new(XCConfigurationList)
         cl.default_configuration_is_visible = '0'
         cl.default_configuration_name = 'Release'
 
         release_conf = project.new(XCBuildConfiguration)
         release_conf.name = 'Release'
-        release_conf.build_settings = common_build_settings(:release, platform, deployment_target)
+        release_conf.build_settings = common_build_settings(:release, platform, deployment_target, product_type)
 
         debug_conf = project.new(XCBuildConfiguration)
         debug_conf.name = 'Debug'
-        debug_conf.build_settings = common_build_settings(:debug, platform, deployment_target)
+        debug_conf.build_settings = common_build_settings(:debug, platform, deployment_target, product_type)
 
         cl.build_configurations << release_conf
         cl.build_configurations << debug_conf
@@ -174,37 +179,31 @@ module Xcodeproj
       #         the deployment target for the platform.
       #
       # @param  [Symbol] target_product_type
-      #         the product type of the target, can be any of `Constants::PRODUCT_TYPE_UTI.values`
-      #         or `Constants::PRODUCT_TYPE_UTI.keys`.
+      #         the product type of the target, can be any of
+      #         `Constants::PRODUCT_TYPE_UTI.values` or
+      #         `Constants::PRODUCT_TYPE_UTI.keys`.
       #
       # @param  [Symbol] language
       #         the primary language of the target, can be `:objc` or `:swift`.
       #
+      # @param  [String|Xcodeproj::Application] version
+      #         see {TargetConfiguration#config_dir_for_version}
+      #
       # @return [Hash] The common build settings
       #
-      def self.common_build_settings(type, platform, deployment_target = nil, target_product_type = nil, language = :objc)
-        target_product_type = (Constants::PRODUCT_TYPE_UTI.find { |_,v| v == target_product_type } || [target_product_type])[0]
-        common_settings = Constants::COMMON_BUILD_SETTINGS
+      def self.common_build_settings(type, platform, deployment_target = nil, target_product_type = nil, language = nil, version = nil)
+        language ||= :objc
+        product_type = (Constants::PRODUCT_TYPE_UTI.find { |_,v| v == target_product_type } || [target_product_type])[0]
 
-        # Use intersecting settings for all key sets as base
-        settings = deep_dup(common_settings[:all])
+        target_config = TargetConfiguration.new({
+          :type              => type,
+          :platform          => platform,
+          :deployment_target => deployment_target,
+          :product_type      => product_type,
+          :language          => language,
+        })
 
-        # Match further common settings by key sets
-        keys = [type, platform, target_product_type, language].compact
-        key_combinations = (1..keys.length).map { |n| keys.combination(n).to_a }.reduce([], :+)
-        key_combinations.each do |key_combination|
-          settings.merge!(deep_dup(common_settings[key_combination] || {}))
-        end
-
-        if deployment_target
-          if platform == :ios
-            settings['IPHONEOS_DEPLOYMENT_TARGET'] = deployment_target
-          elsif platform == :osx
-            settings['MACOSX_DEPLOYMENT_TARGET'] = deployment_target
-          end
-        end
-
-        settings
+        target_config.settings(version)
       end
 
       # Creates a deep copy of the given object

@@ -41,6 +41,7 @@ module Xcodeproj
       @attributes = {}
       @includes = []
       @frameworks, @weak_frameworks, @libraries = Set.new, Set.new, Set.new
+      @path = xcconfig_hash_or_file unless xcconfig_hash_or_file.is_a?(Hash)
       merge!(extract_hash(xcconfig_hash_or_file))
     end
 
@@ -182,6 +183,22 @@ module Xcodeproj
     #
     def dup
       Xcodeproj::Config.new(self.to_hash.dup)
+    end
+
+    # Load and merge includes
+    #
+    # @raise  [StandardError]
+    #         if an included file can't be found
+    #
+    # @return [void]
+    #
+    def merge_with_includes!
+      includes.each do |include_path|
+        path = Pathname(@path) + '..' + include_path
+        raise "[Xcodeproj] Include path `#{path}` doesn't exist" unless File.exist?(path)
+        included_config = self.class.new(path)
+        merge!(included_config)
+      end
     end
 
     #-------------------------------------------------------------------------#

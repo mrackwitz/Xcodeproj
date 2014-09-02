@@ -4,7 +4,7 @@ module ProjectSpecs
   describe PBXProject do
 
     before do
-      @project.new_target(:static, "Pods", :ios)
+      @project.new_target(:static_library, "Pods", :ios)
       @root_object = @project.root_object
     end
 

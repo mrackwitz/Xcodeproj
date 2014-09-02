@@ -73,7 +73,9 @@ module ProjectSpecs
         @project['Frameworks'].class.should == PBXGroup
       end
 
-      it "it should have DNS_BLOCK_ASSERTIONS=1 flag in Release configuration" do
+      # Disabled because not supported anymore: Xcodeproj tries to generate
+      # build settings, which are the same as those from Xcode.
+      xit "it should have DNS_BLOCK_ASSERTIONS=1 flag in Release configuration" do
         target = @project.new_target(:static_library, 'Pods', :ios)
         target.build_configuration_list.should.not.be.nil
 

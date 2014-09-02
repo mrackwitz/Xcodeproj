@@ -87,15 +87,72 @@ begin
     @rvm_ruby_dir ||= File.expand_path('../..', `which ruby`.strip)
   end
 
+
+  # Xcode
+  #-----------------------------------------------------------------------------#
+
+  namespace :xcode do
+
+    desc "Shows info about the currently selected Xcode app version"
+    task :current do
+      require 'xcodeproj'
+      puts "#{green('*')} #{Xcodeproj::Application.current.pretty_print}"
+      puts
+    end
+
+    desc "Locate all installed Xcode app versions"
+    task :all do
+      require 'xcodeproj'
+      Xcodeproj::Application.all.each do |app|
+        indicator = green(Xcodeproj::Application.current == app ? '*' : ' ')
+        puts "#{indicator} #{app.pretty_print}"
+        puts
+      end
+    end
+
+    desc "Select a Xcode version (with fuzzy-match on version, build and path. e.g. 6b3)"
+    task :select, [:version] do |_, args|
+      require 'xcodeproj'
+      version = args[:version]
+      if version.nil?
+        puts red('Version is required!')
+        exit 1
+      end
+      pattern = Regexp.new(version.downcase.chars.join('.*'), 'i')
+      apps = Xcodeproj::Application.all.select do |app|
+        app.short_version.match(pattern) \
+        || app.product_build_version.match(pattern) \
+        || app.path.basename.to_s.match(pattern)
+      end
+      if apps.count == 1
+        apps.first.select!
+        puts green('Selected:')
+        Rake::Task['xcode:current'].invoke()
+      elsif apps.count > 1
+        puts red('Ambiguous reference provided. Multiple matches:')
+        puts apps.inject('') { |s,app| s+"  #{app.pretty_print}\n\n" }
+        exit 1
+      else
+        puts red('Unknown version. You have installed the following Xcode versions:')
+        Rake::Task['xcode:all'].invoke()
+      end
+    end
+
+  end
+
+
   # Common Build settings
   #-----------------------------------------------------------------------------#
 
   namespace :common_build_settings do
-    PROJECT_PATH = 'Project/Project.xcodeproj'
+    PROJECT_DIR = 'project'
+    PROJECT_PATH = "#{PROJECT_DIR}/Project.xcodeproj"
 
-    task :prepare do
+    task :prepare, [:dir_name] do |_, args|
       verbose false
-      cd 'spec/fixtures/CommonBuildSettings'
+      require 'xcodeproj'
+      dir_name = args[:dir_name] || Xcodeproj::Application.current.config_identifier
+      cd "data/#{dir_name}"
     end
 
     desc "Create a new empty project"
@@ -104,18 +161,25 @@ begin
       require 'xcodeproj'
       title "Setup Boilerplate"
 
-      confirm "Delete existing fixture project and all data"
-      rm_rf 'Project/*'
+      if Dir.exist?(PROJECT_PATH)
+        confirm "Delete existing fixture project and all data"
+        rm_rf PROJECT_DIR
+      end
+      mkdir_p PROJECT_DIR
 
       subtitle "Create a new fixture project"
-      Xcodeproj::Project.new(PROJECT_PATH).save
+      project = Xcodeproj::Project.new(PROJECT_PATH)
+      project.build_configuration_list.build_configurations.each do |bc|
+        bc.build_settings = {} # Reset the build settings
+      end
+      project.save
 
       subtitle "Open the project …"
-      sh 'open "Project/Project.xcodeproj"'
+      sh "open '#{PROJECT_PATH}'"
     end
 
     desc "Interactive walkthrough for creating fixture targets"
-    task :targets => [:prepare] do
+    task :targets, [:pre6] => [:prepare] do |t, args|
       verbose false
       require 'xcodeproj'
 
@@ -125,24 +189,29 @@ begin
       confirm "Make sure you have nothing unsaved there"
 
       targets = {
-        "Objc_iOS_Native"         => { platform: :ios, type: :application,     language: :objc,  how: "iOS > Master-Detail Application > Language: Objective-C" },
-        "Swift_iOS_Native"        => { platform: :ios, type: :application,     language: :swift, how: "iOS > Master-Detail Application > Language: Swift" },
-        "Objc_iOS_Framework"      => { platform: :ios, type: :framework,       language: :objc,  how: "iOS > Cocoa Touch Framework > Language: Objective-C" },
-        "Swift_iOS_Framework"     => { platform: :ios, type: :framework,       language: :swift, how: "iOS > Cocoa Touch Framework > Language: Swift" },
-        "Objc_iOS_StaticLibrary"  => { platform: :ios, type: :static_library,  language: :objc,  how: "iOS > Cocoa Touch Static Library" },
-        "Objc_OSX_Native"         => { platform: :osx, type: :application,     language: :objc,  how: "OSX > Cocoa Application > Language: Objective-C" },
-        "Swift_OSX_Native"        => { platform: :osx, type: :application,     language: :swift, how: "OSX > Cocoa Application > Language: Swift" },
-        "Objc_OSX_Framework"      => { platform: :osx, type: :framework,       language: :objc,  how: "OSX > Cocoa Framework > Language: Objective-C" },
-        "Swift_OSX_Framework"     => { platform: :osx, type: :framework,       language: :swift, how: "OSX > Cocoa Framework > Language: Swift" },
-        "Objc_OSX_StaticLibrary"  => { platform: :osx, type: :static_library,  language: :objc,  how: "OSX > Library > Type: Static" },
-        "Objc_OSX_DynamicLibrary" => { platform: :osx, type: :dynamic_library, language: :objc,  how: "OSX > Library > Type: Dynamic" },
-        "OSX_Bundle"              => { platform: :osx, type: :bundle,                            how: "OSX > Bundle" },
+        "Objc_iOS_Native"         => "iOS > Master-Detail Application > Language: Objective-C",
+        "Swift_iOS_Native"        => "iOS > Master-Detail Application > Language: Swift",
+        "Objc_iOS_Framework"      => "iOS > Cocoa Touch Framework > Language: Objective-C",
+        "Swift_iOS_Framework"     => "iOS > Cocoa Touch Framework > Language: Swift",
+        "Objc_iOS_StaticLibrary"  => "iOS > Cocoa Touch Static Library",
+        "Objc_OSX_Native"         => "OSX > Cocoa Application > Language: Objective-C",
+        "Swift_OSX_Native"        => "OSX > Cocoa Application > Language: Swift",
+        "Objc_OSX_Framework"      => "OSX > Cocoa Framework > Language: Objective-C",
+        "Swift_OSX_Framework"     => "OSX > Cocoa Framework > Language: Swift",
+        "Objc_OSX_StaticLibrary"  => "OSX > Library > Type: Static",
+        "Objc_OSX_DynamicLibrary" => "OSX > Library > Type: Dynamic",
+        "OSX_Bundle"              => "OSX > Bundle",
       }
 
-      targets.each do |name, attributes|
+      targets.each do |name, explanation|
+        target_config = Xcodeproj::Constants::TARGET_CONFIGURATIONS[name]
+        if args[:pre6]
+          next if target_config.language == :swift
+          next if target_config.platform == :ios && target_config.product_type == :framework
+        end
         begin
           sh "printf '#{name}' | pbcopy"
-          confirm "Create a target named '#{name}' by: #{attributes[:how]}", false
+          confirm "Create a target named '#{name}' by: #{explanation}", false
 
           project = Xcodeproj::Project.open(PROJECT_PATH)
           raise "Project couldn't be opened." if project.nil?
@@ -150,8 +219,8 @@ begin
           target = project.targets.find { |t| t.name == name }
           raise "Target wasn't found." if target.nil?
 
-          raise "Platform doesn't match." unless target.platform_name == attributes[:platform]
-          raise "Type doesn't match."     unless target.symbol_type   == attributes[:type]
+          raise "Platform doesn't match." unless target.platform_name == target_config.platform
+          raise "Type doesn't match."     unless target.symbol_type   == target_config.product_type
 
           debug_config= target.build_configurations.find { |c| c.name = 'Debug' }
           raise "Debug configuration is missing" if debug_config.nil?
@@ -160,7 +229,7 @@ begin
           raise "Release configuration is missing" if release_config.nil?
 
           is_swift_present  = debug_config.build_settings['SWIFT_OPTIMIZATION_LEVEL'] != nil
-          is_swift_expected = attributes[:language] == :swift
+          is_swift_expected = target_config.language == :swift
           raise "Language doesn't match." unless is_swift_present == is_swift_expected
 
           puts green("Target matches.")
@@ -176,9 +245,19 @@ begin
     end
 
     desc "Dump the build settings of the fixture project to xcconfig files"
-    task :dump => [:prepare] do
+    task :dump, [:dir_name] => [:prepare] do
       verbose false
-      sh "../../../bin/xcodeproj config-dump Project/Project.xcodeproj configs"
+      mkdir_p 'configs'
+      sh '../../bin/xcodeproj config-dump project/Project.xcodeproj configs'
+    end
+
+    desc "(Re-)Dump all fixture projects to xcconfig files"
+    task :dump_all do
+      Dir['data/*'].each do |dir|
+        dir_name = File.basename(dir)
+        # Rake::Task[].invoke won't work here, because the chdir side-effect
+        sh "rake common_build_settings:dump[#{dir_name}]"
+      end
     end
 
     desc "Recreate the xcconfig files for the fixture project targets from scratch"

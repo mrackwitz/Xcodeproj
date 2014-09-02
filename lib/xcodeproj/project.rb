@@ -157,8 +157,6 @@ module Xcodeproj
 
       config_list = new(XCConfigurationList)
       root_object.build_configuration_list = config_list
-      config_list.default_configuration_name = 'Release'
-      config_list.default_configuration_is_visible = '0'
       add_build_configuration('Debug', :debug)
       add_build_configuration('Release', :release)
 
@@ -480,7 +478,7 @@ module Xcodeproj
     #
     def reference_for_path(absolute_path)
       absolute_pathname = Pathname.new(absolute_path)
-      
+
       unless absolute_pathname.absolute?
         raise ArgumentError, "Paths must be absolute #{absolute_path}"
       end
@@ -578,8 +576,8 @@ module Xcodeproj
     # Frameworks phase.
     #
     # @param  [Symbol] type
-    #         the type of target. Can be `:application`, `:dynamic_library` or
-    #         `:static_library`.
+    #         the type of target. Can be `:application`, `:framework`,
+    #         `:dynamic_library` or `:static_library`.
     #
     # @param  [String] name
     #         the name of the target product.

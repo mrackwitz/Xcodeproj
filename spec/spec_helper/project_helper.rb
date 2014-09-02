@@ -3,13 +3,6 @@ require 'colored'
 module SpecHelper
   module ProjectHelper
 
-    # Keys which are excluded from comparison
-    EXCLUDED_KEYS = [
-        'INFOPLIST_FILE',
-        'MACOSX_DEPLOYMENT_TARGET',
-        'IPHONEOS_DEPLOYMENT_TARGET',
-    ].freeze
-
     # Generates test cases to compare two settings hashes.
     #
     # @param [Hash{String => String}] produced
@@ -70,19 +63,23 @@ module SpecHelper
     # @param  [Symbol] type
     #         the type, where the specific
     #
+    # @param  [String] config_identifier
+    #         the directory name for the Xcode version
+    #
     # @param  [Hash{String => String}]
     #         the build settings
     #
-    def load_settings(path, type)
+    def load_settings(path, type, config_identifier)
       # Load fixture
-      base_path = Pathname(fixture_path("CommonBuildSettings/configs/#{path}"))
-      config_fixture = base_path + "#{path}_#{type}.xcconfig"
+      base_path = Pathname(data_path(config_identifier))
+      config_base_path = base_path + 'configs'
+      config_fixture = config_base_path + "#{path}" + "#{path}_#{type}.xcconfig"
       config = Xcodeproj::Config.new(config_fixture)
+      config.merge_with_includes!
       settings = config.to_hash
 
       # Filter exclusions
-      settings = apply_exclusions(settings, EXCLUDED_KEYS)
-      settings = apply_exclusions(settings, Xcodeproj::Constants::PROJECT_DEFAULT_BUILD_SETTINGS[type != :base ? type : :all])
+      settings = apply_exclusions(settings, Xcodeproj::Constants::EXCLUDE_BUILD_SETTINGS_KEYS)
 
       return settings
     end

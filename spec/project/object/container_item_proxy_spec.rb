@@ -18,7 +18,7 @@ module ProjectSpecs
     end
 
     it "returns the remote global id string" do
-      target = @project.new_target(:static, "Pods", :ios)
+      target = @project.new_target(:static_library, "Pods", :ios)
       @proxy.remote_global_id_string = target.uuid
       @proxy.remote_global_id_string.should == target.uuid
     end

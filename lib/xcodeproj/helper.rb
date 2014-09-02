@@ -1,5 +1,34 @@
 module Xcodeproj
   module Helper
+
+    # Let define enum accessors
+    #
+    module EnumAccessor
+
+      # Define a new attribute with enumerated valid values and synthesises the
+      # corresponding methods.
+      #
+      # @param  [String] name
+      #         the name of the attribute
+      #
+      # @return [void]
+      #
+      def enum_accessor(name, valid_values)
+        define_method(name) do
+          @simple_attributes_hash ||= {}
+          @simple_attributes_hash[name]
+        end
+
+        define_method("#{name}=") do |value|
+          @simple_attributes_hash ||= {}
+          raise ArgumentError, "[Xcodeproj] Type checking error: got nil for attribute: #{name}" if value.nil?
+          acceptable = valid_values.include?(value)
+          raise ArgumentError, "[Xcodeproj] Type checking error: got `#{value}` for attribute: #{name}" unless acceptable
+          @simple_attributes_hash[name] = value
+        end
+      end
+    end
+
     class TargetDiff
       attr_reader :project, :target1, :target2
 

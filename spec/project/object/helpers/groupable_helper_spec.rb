@@ -23,7 +23,7 @@ module ProjectSpecs
 
         it "includes only groups in the parents" do
           file = @project.new_file('File.m')
-          target = @project.new_target(:library, 'Pods', :ios)
+          target = @project.new_target(:static_library, 'Pods', :ios)
           target.add_file_references([file])
           @helper.parent(file).should == @project.main_group
         end

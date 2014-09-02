@@ -108,103 +108,21 @@ module Xcodeproj
       :bundle          => 'bundle',
     }.freeze
 
-    # @return [Hash] The common build settings grouped by platform, and build
-    #         configuration name.
+    # @return [Hash] All valid {TargetConfigurations}.
     #
-    COMMON_BUILD_SETTINGS = {
-      :all => {
-        'PRODUCT_NAME'                      => '$(TARGET_NAME)',
-        'ENABLE_STRICT_OBJC_MSGSEND'        => 'YES',
-      }.freeze,
-      [:debug] => {
-        'MTL_ENABLE_DEBUG_INFO'             => 'YES',
-      }.freeze,
-      [:release] => {
-        'MTL_ENABLE_DEBUG_INFO'             => 'NO',
-      }.freeze,
-      [:ios] => {
-        'SDKROOT'                           => 'iphoneos',
-      }.freeze,
-      [:osx] => {
-        'SDKROOT'                           => 'macosx',
-      }.freeze,
-      [:debug, :osx] => {
-        # Empty?
-      }.freeze,
-      [:release, :osx] => {
-        'DEBUG_INFORMATION_FORMAT'          => 'dwarf-with-dsym',
-      }.freeze,
-      [:debug, :ios] => {
-        # Empty?
-      }.freeze,
-      [:debug, :application, :swift] => {
-        'SWIFT_OPTIMIZATION_LEVEL'          => '-Onone',
-      }.freeze,
-      [:framework] => {
-        'VERSION_INFO_PREFIX'               => '',
-        'DYLIB_COMPATIBILITY_VERSION'       => '1',
-        'DEFINES_MODULE'                    => 'YES',
-        'DYLIB_INSTALL_NAME_BASE'           => '@rpath',
-        'CURRENT_PROJECT_VERSION'           => '1',
-        'VERSIONING_SYSTEM'                 => 'apple-generic',
-        'DYLIB_CURRENT_VERSION'             => '1',
-        'SKIP_INSTALL'                      => 'YES',
-        'INSTALL_PATH'                      => '$(LOCAL_LIBRARY_DIR)/Frameworks',
-      }.freeze,
-      [:ios, :framework] => {
-        'LD_RUNPATH_SEARCH_PATHS'           => ['$(inherited)', '@executable_path/Frameworks', '@loader_path/Frameworks'],
-        'CODE_SIGN_IDENTITY[sdk=iphoneos*]' => 'iPhone Developer',
-        'TARGETED_DEVICE_FAMILY'            => '1,2',
-      }.freeze,
-      [:osx, :framework] => {
-        'LD_RUNPATH_SEARCH_PATHS'           => ['$(inherited)', '@executable_path/../Frameworks', '@loader_path/Frameworks'],
-        'FRAMEWORK_VERSION'                 => 'A',
-        'COMBINE_HIDPI_IMAGES'              => 'YES',
-      }.freeze,
-      [:framework, :swift] => {
-        'DEFINES_MODULE'                    => 'YES',
-      }.freeze,
-      [:debug, :framework, :swift] => {
-          'SWIFT_OPTIMIZATION_LEVEL'          => '-Onone',
-      }.freeze,
-      [:osx, :static_library] => {
-        'EXECUTABLE_PREFIX'                 => 'lib',
-      }.freeze,
-      [:ios, :static_library] => {
-        'OTHER_LDFLAGS'                     => '-ObjC',
-        'SKIP_INSTALL'                      => 'YES',
-      }.freeze,
-      [:osx, :dynamic_library] => {
-        'EXECUTABLE_PREFIX'                 => 'lib',
-        'DYLIB_COMPATIBILITY_VERSION'       => '1',
-        'DYLIB_CURRENT_VERSION'             => '1',
-      }.freeze,
-      [:application] => {
-        'ASSETCATALOG_COMPILER_APPICON_NAME' => 'AppIcon',
-      }.freeze,
-      [:ios, :application] => {
-        'ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME' => 'LaunchImage',
-        'CODE_SIGN_IDENTITY[sdk=iphoneos*]' => 'iPhone Developer',
-        'LD_RUNPATH_SEARCH_PATHS'           => ['$(inherited)', '@executable_path/Frameworks'],
-      }.freeze,
-      [:osx, :application] => {
-        'COMBINE_HIDPI_IMAGES'              => 'YES',
-        'CODE_SIGN_IDENTITY'                => '-',
-        'LD_RUNPATH_SEARCH_PATHS'           => ['$(inherited)', '@executable_path/../Frameworks'],
-      }.freeze,
-      [:bundle] => {
-        'PRODUCT_NAME'                      => '$(TARGET_NAME)',
-        'WRAPPER_EXTENSION'                 => 'bundle',
-        'SKIP_INSTALL'                      => 'YES',
-      }.freeze,
-      [:ios, :bundle] => {
-        'SDKROOT'                           => 'iphoneos',
-      }.freeze,
-      [:osx, :bundle] => {
-        'COMBINE_HIDPI_IMAGES'              => 'YES',
-        'SDKROOT'                           => 'macosx',
-        'INSTALL_PATH'                      => '$(LOCAL_LIBRARY_DIR)/Bundles',
-      }.freeze,
+    TARGET_CONFIGURATIONS = {
+      "Objc_iOS_Native"         => TargetConfiguration.new({ :platform => :ios, :product_type => :application,     :language => :objc  }),
+      "Swift_iOS_Native"        => TargetConfiguration.new({ :platform => :ios, :product_type => :application,     :language => :swift }),
+      "Objc_iOS_Framework"      => TargetConfiguration.new({ :platform => :ios, :product_type => :framework,       :language => :objc  }),
+      "Swift_iOS_Framework"     => TargetConfiguration.new({ :platform => :ios, :product_type => :framework,       :language => :swift }),
+      "Objc_iOS_StaticLibrary"  => TargetConfiguration.new({ :platform => :ios, :product_type => :static_library,  :language => :objc  }),
+      "Objc_OSX_Native"         => TargetConfiguration.new({ :platform => :osx, :product_type => :application,     :language => :objc  }),
+      "Swift_OSX_Native"        => TargetConfiguration.new({ :platform => :osx, :product_type => :application,     :language => :swift }),
+      "Objc_OSX_Framework"      => TargetConfiguration.new({ :platform => :osx, :product_type => :framework,       :language => :objc  }),
+      "Swift_OSX_Framework"     => TargetConfiguration.new({ :platform => :osx, :product_type => :framework,       :language => :swift }),
+      "Objc_OSX_StaticLibrary"  => TargetConfiguration.new({ :platform => :osx, :product_type => :static_library,  :language => :objc  }),
+      "Objc_OSX_DynamicLibrary" => TargetConfiguration.new({ :platform => :osx, :product_type => :dynamic_library, :language => :objc  }),
+      "OSX_Bundle"              => TargetConfiguration.new({ :platform => :osx, :product_type => :bundle,                              }),
     }.freeze
 
     # @return [Hash] The default build settings for a new project.
@@ -247,6 +165,23 @@ module Xcodeproj
         'GCC_SYMBOLS_PRIVATE_EXTERN'         => 'NO',
       }.freeze,
     }.freeze
+
+    # @return [Hash{String, Proc<(PBXNativeTarget) -> String>}]
+    #         The build settings which are part of the defaults, but are
+    #         dependent on their file location
+    #
+    PROJECT_PATH_DEPENDENT_BUILD_SETTINGS = {
+      'GCC_PREFIX_HEADER' => lambda { |t| "#{t}/#{t}.plist" },
+      'INFOPLIST_FILE'    => lambda { |t| "#{t}/#{t}-Info.plist" },
+      'DSTROOT'           => lambda { |t| "/tmp/#{t}.dst" },
+      'BUNDLE_LOADER'     => lambda { |t| "$(BUILT_PRODUCTS_DIR)/#{t}.app/#{t}" },
+    }.freeze
+
+    # @return [Array<String>]
+    #         The keys of build settings which were dumped, but should not been
+    #         used as presets for newly created target configurations.
+    #
+    EXCLUDE_BUILD_SETTINGS_KEYS = PROJECT_PATH_DEPENDENT_BUILD_SETTINGS.keys.freeze
 
     # @return [Hash] The corresponding numeric value of each copy build phase
     #         destination.

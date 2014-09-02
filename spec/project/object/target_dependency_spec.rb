@@ -14,12 +14,12 @@ module ProjectSpecs
     end
 
     it "returns the target on which this dependency is based" do
-      @target_dependency.target = @project.new_target(:static, "Pods", :ios)
+      @target_dependency.target = @project.new_target(:static_library, "Pods", :ios)
       @target_dependency.target.name.should == "Pods"
     end
 
     it "returns the proxy of the target on which this dependency is based" do
-      target = @project.new_target(:static, "Pods", :ios)
+      target = @project.new_target(:static_library, "Pods", :ios)
 
       proxy = @project.new(PBXContainerItemProxy)
       proxy.container_portal = @project.root_object.uuid
@@ -35,7 +35,7 @@ module ProjectSpecs
     # would lead to an endless sort. It is unlikely that a target would ever
     # depend on itself, as in this example, though.
     it "does not sort recursively, which would case stack level too deep errors" do
-      target = @project.new_target(:static, "Pods", :ios)
+      target = @project.new_target(:static_library, "Pods", :ios)
       @target_dependency.target = target
       target.dependencies << @target_dependency
       lambda { @target_dependency.sort_recursively }.should.not.raise
@@ -51,7 +51,7 @@ module ProjectSpecs
       end
 
       it "returns the name if needed" do
-        @target_dependency.target = @project.new_target(:static, "Pods", :ios)
+        @target_dependency.target = @project.new_target(:static_library, "Pods", :ios)
         @target_dependency.display_name.should == 'Pods'
       end
 

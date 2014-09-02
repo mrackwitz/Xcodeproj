@@ -30,8 +30,27 @@ require 'spec_helper/project_helper'
 require 'spec_helper/temporary_directory'
 
 
+def data_path(*paths)
+  File.join(File.dirname(__FILE__), "../data", *paths)
+end
+
 def fixture_path(path)
   File.join(File.dirname(__FILE__), "fixtures", path)
+end
+
+# Define custom matchers
+class Should
+
+  # Checks if all values satisfy a given predicate
+  #
+  def all_conform?(&predicate)
+    non_conforming = @object.reject &predicate
+    list = non_conforming.map { |v| "  * #{v}" }.join("\n")
+    satisfy("Not all elements conform predicate:\n#{list}") do
+      non_conforming.empty?
+    end
+  end
+
 end
 
 class Hash
